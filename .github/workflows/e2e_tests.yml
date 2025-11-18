@@ -1,0 +1,164 @@
+name: Running tests in parallel
+
+on:
+  workflow_dispatch:
+    inputs:
+      folders:
+        description: 'A comma-separated list of test folders, e.g. "packages/a/tests,packages/b/tests"'
+        required: true
+      maxParallel:
+        description: "Max number of parallel jobs"
+        required: false
+        default: "6"
+      retries:
+        description: "The number of times to retry Playwright tests in CI (0 to disable)"
+        required: false
+        default: "1"
+      branch:
+        description: "Specify the branch to checkout for the tests code"
+        required: false
+        default: "main"
+
+concurrency:
+  group: playwright-manual-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Determine test modules
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.parse.outputs.modules }}
+      retries: ${{ steps.norm.outputs.retries }}
+      maxParallel: ${{ steps.norm.outputs.maxParallel }}
+    steps:
+      - id: validate
+        run: |
+          if [ -z "${{ inputs.folders }}" ]; then
+            echo "Required input 'folders' (CSV) is missing." >&2
+            exit 1
+          fi
+      - id: norm
+        run: |
+          echo "retries=${{ inputs.retries }}" >> $GITHUB_OUTPUT
+          echo "maxParallel=${{ inputs.maxParallel }}" >> $GITHUB_OUTPUT
+      - id: parse
+        shell: bash
+        run: |
+          # CSV -> JSON array for matrix
+          json='["'$(echo "${{ inputs.folders }}" | sed 's/,/","/g')'"]'
+          echo "modules=$json" >> $GITHUB_OUTPUT
+      - name: Summary
+        run: |
+          echo "### Planned modules" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo 'Max parallel: `${{ steps.norm.outputs.maxParallel }}`  •  Retries: `${{ steps.norm.outputs.retries }}`' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.parse.outputs.modules }}' | jq -r '.[]' | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
+
+  test:
+    name: "tests: ${{ matrix.module }}"
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJSON(needs.plan.outputs.maxParallel) }}
+      matrix:
+        module: ${{ fromJSON(needs.plan.outputs.modules) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install
+
+      - name: Run tests (1 worker)
+        env:
+          CI: true
+          ENV: "development"
+          BASE_URL: ${{ secrets.BASE_URL }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: |
+          set -eux
+          npx playwright test "${{ matrix.module }}" \
+            --workers=1 \
+            --retries=${{ needs.plan.outputs.retries }} \
+            --reporter=github,blob,list
+
+      - name: Create sanitized module name
+        id: sanitize
+        if: always()
+        run: |
+          # Replace forward slashes with hyphens
+          SANITIZED_MODULE=$(echo "${{ matrix.module }}" | tr '/' '-')
+          echo "module=$SANITIZED_MODULE" >> $GITHUB_OUTPUT
+
+      - name: Upload blob report (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-${{ github.run_id }}-${{ steps.sanitize.outputs.module }}
+          path: blob-report
+          if-no-files-found: ignore
+          retention-days: 1
+
+      - name: Upload traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: traces-${{ github.run_id }}-${{ steps.sanitize.outputs.module }}
+          path: playwright-report
+          if-no-files-found: ignore
+          retention-days: 1
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "✅ Completed: \`${{ matrix.module }}\`" >> $GITHUB_STEP_SUMMARY
+
+  merge-report:
+    name: Combine HTML report
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: blob-report-*
+          path: ./all-blobs
+          merge-multiple: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Playwright CLI only
+        run: npm i -D @playwright/test
+
+      - name: Merge -> HTML
+        run: |
+          npx playwright merge-reports --reporter html ./all-blobs
+
+      - name: Upload merged HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-merged
+          path: playwright-report
+          retention-days: 1
