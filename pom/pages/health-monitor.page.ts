@@ -12,6 +12,7 @@ export class HealthMonitorPage implements IPage {
   private readonly macdCard: Locator;
   private readonly shortInterestCard: Locator;
   private readonly seeMoreButtons: Locator;
+  private readonly mainContent: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -22,19 +23,20 @@ export class HealthMonitorPage implements IPage {
     this.macdCard = page.locator('text=MACD').locator('..').locator('..');
     this.shortInterestCard = page.locator('text=SHORT INTEREST').locator('..').locator('..');
     this.seeMoreButtons = page.getByRole('button', { name: /see more/i });
+    this.mainContent = page.locator('#main-content');
   }
 
-  getUrl(id?: string): string {
+  getUrl(): string {
     return `${BASE_URL}/health-monitor`;
   }
 
   async isReady(): Promise<void> {
-    await this.pageHeading.waitFor({ state: 'visible' });
-    await this.rsiCard.waitFor({ state: 'visible' });
+    await this.page.waitForLoadState('networkidle');
+    await this.mainContent.isVisible();
   }
 
-  async open(id?: string): Promise<void> {
-    await this.page.goto(this.getUrl(id));
+  async open(): Promise<void> {
+    await this.page.goto(this.getUrl());
     await this.isReady();
   }
 

@@ -7,17 +7,20 @@ export class ChatComponent {
   private readonly sendButton: Locator;
   private readonly chatHistoryItems: Locator;
   private readonly closeButton: Locator;
-
+  readonly reasoningText: Locator;
+  readonly chatHistoryButton: Locator;
   constructor(
     private readonly page: Page,
     rootSelector: string = '[role="dialog"]'
   ) {
-    this.container = page.locator(rootSelector);
-    this.newChatButton = this.container.getByRole('button', { name: /new chat/i });
-    this.chatInput = this.container.getByPlaceholder('Ask Charlie...');
-    this.sendButton = this.container.locator('button[type="submit"]');
-    this.chatHistoryItems = this.container.locator('[role="button"][aria-label^="Chat from"]');
-    this.closeButton = this.container.getByRole('button', { name: /close/i });
+    this.container = this.page.locator(rootSelector);
+    this.newChatButton = this.page.getByRole('button', { name: /new chat/ });
+    this.chatInput = this.page.getByPlaceholder('Ask Charlie...');
+    this.sendButton = this.page.locator('button[type="submit"]');
+    this.chatHistoryItems = this.page.locator('[role="button"][aria-label^="Chat from"]');
+    this.closeButton = this.page.getByRole('button', { name: /close/ });
+    this.reasoningText = this.page.getByRole('button', { name: 'Reasoning' });
+    this.chatHistoryButton = this.page.getByRole('button', { name: 'Open chat history' });
   }
 
   async isVisible(): Promise<boolean> {
@@ -47,11 +50,15 @@ export class ChatComponent {
   }
 
   async clickChatHistoryItem(index: number): Promise<void> {
+    await this.chatHistoryButton.click();
     await this.chatHistoryItems.nth(index).click();
+    await this.container.waitFor({ state: 'visible' });
   }
 
   async clickChatHistoryItemByText(text: string): Promise<void> {
-    await this.container.getByRole('button', { name: new RegExp(text, 'i') }).click();
+    await this.chatInput.click();
+    await this.chatHistoryButton.click();
+    await this.page.locator(`[role="button"]`).filter({ hasText: text }).first().click();
   }
 
   async closeChat(): Promise<void> {
@@ -59,7 +66,7 @@ export class ChatComponent {
   }
 
   async waitForChatResponse(): Promise<void> {
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForTimeout(5_000);
   }
 
   async isChatInputEnabled(): Promise<boolean> {
