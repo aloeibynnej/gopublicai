@@ -29,7 +29,7 @@ export default defineConfig({
     baseURL: 'https://staging.gopublic.ai/',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
 
     /* Capture screenshot after each test */
     screenshot: 'only-on-failure',
