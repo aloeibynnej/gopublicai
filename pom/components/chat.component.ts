@@ -9,18 +9,21 @@ export class ChatComponent {
   private readonly closeButton: Locator;
   readonly reasoningText: Locator;
   readonly chatHistoryButton: Locator;
+  readonly chatResponseText: Locator;
+
   constructor(
     private readonly page: Page,
     rootSelector: string = '[role="dialog"]'
   ) {
     this.container = this.page.locator(rootSelector);
-    this.newChatButton = this.page.getByRole('button', { name: /new chat/ });
+    this.newChatButton = this.page.getByRole('button', { name: 'Start new chat' });
     this.chatInput = this.page.getByPlaceholder('Ask Charlie...');
     this.sendButton = this.page.locator('button[type="submit"]');
     this.chatHistoryItems = this.page.locator('[role="button"][aria-label^="Chat from"]');
-    this.closeButton = this.page.getByRole('button', { name: /close/ });
+    this.closeButton = this.page.getByRole('button', { name: 'Close chat' });
     this.reasoningText = this.page.getByRole('button', { name: 'Reasoning' });
     this.chatHistoryButton = this.page.getByRole('button', { name: 'Open chat history' });
+    this.chatResponseText = this.page.getByText('Good morning, Michal. Your').first();
   }
 
   async isVisible(): Promise<boolean> {
@@ -67,6 +70,7 @@ export class ChatComponent {
 
   async waitForChatResponse(): Promise<void> {
     await this.page.waitForTimeout(5_000);
+    await this.chatResponseText.isVisible();
   }
 
   async isChatInputEnabled(): Promise<boolean> {

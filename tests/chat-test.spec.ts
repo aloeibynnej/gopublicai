@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { HealthMonitorPage } from '../pom/pages/health-monitor.page';
+import { HealthMonitorPage } from '../pom/pages';
 
 test.setTimeout(60_000);
 
@@ -10,13 +10,20 @@ test('chat window can be opened @desktop', async ({ page }) => {
   await healthMonitorPage.open();
   await healthMonitorPage.isReady();
 
-  await healthMonitorPage.chat.sendMessage(`Hello World ${unixTimestamp}`);
-  await healthMonitorPage.chat.reasoningText.waitFor({ state: 'visible' });
+  const chatComponent = healthMonitorPage.chat;
 
-  await healthMonitorPage.chat.waitForChatResponse();
+  await chatComponent.sendMessage(`Hello World ${unixTimestamp}`);
+  await chatComponent.reasoningText.waitFor({ state: 'visible' });
+
   await page.reload();
-  await healthMonitorPage.isReady();
-  await healthMonitorPage.chat.clickChatHistoryItemByText(`Hello World ${unixTimestamp}`);
 
+  await healthMonitorPage.isReady();
+  await chatComponent.clickChatHistoryItemByText(`Hello World ${unixTimestamp}`);
   await expect(page.locator('text=Hello World ' + unixTimestamp)).toBeVisible();
+
+  await chatComponent.clickNewChat();
+  await chatComponent.waitForChatResponse();
+
+  await chatComponent.closeChat();
+  await expect(page.locator('text=Hello World ' + unixTimestamp)).not.toBeVisible();
 });
