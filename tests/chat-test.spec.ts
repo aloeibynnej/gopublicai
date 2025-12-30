@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { HealthMonitorDesktopPage } from '../pom/pages';
 
-test.setTimeout(60_000);
+test.setTimeout(45_000);
 
 // TODO: Chat history backend not implemented in Vercel environment yet
 // Skipping until "Failed to fetch chat history" is resolved
@@ -13,7 +13,7 @@ test.skip('chat window can be opened @desktop', async ({ page }) => {
   await healthMonitorPage.isReady();
 
   const chatComponent = healthMonitorPage.chat;
-
+  
   await chatComponent.sendMessage(`Hello World ${unixTimestamp}`);
   
   // Wait for response - Reasoning status text may appear while AI is thinking
