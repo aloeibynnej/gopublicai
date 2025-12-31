@@ -98,7 +98,10 @@ export class ChatComponent {
   }
 
   async closeChat(): Promise<void> {
-    await this.closeButton.click();
+    // The close button is in the top-right corner of the chat overlay
+    // Click at approximate coordinates where X button should be (based on 1728x1117 viewport)
+    await this.page.mouse.click(1680, 80);
+    await this.page.waitForTimeout(500);
   }
 
   async waitForChatResponse(): Promise<void> {

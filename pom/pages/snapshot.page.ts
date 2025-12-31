@@ -9,6 +9,12 @@ class SnapshotPage implements IPage {
   readonly yourPeersSection: Locator;
   readonly capitalMarketScrollSection: Locator;
   readonly companyName: Locator;
+  readonly investorLensCard: Locator;
+  readonly peerAnalysisCard: Locator;
+  readonly sectorAnalysisCard: Locator;
+  readonly stockTechnicalsCard: Locator;
+
+  private readonly mainContent: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -16,7 +22,13 @@ class SnapshotPage implements IPage {
     this.yourPeersSection = page.getByText('Your peers');
     this.capitalMarketScrollSection = page.getByText('Capital Market Scroll');
     this.companyName = page.locator('div.text-base.font-semibold.uppercase.font-pitchsans');
+    this.mainContent = page.locator('#main-content');
+    this.investorLensCard = page.locator('.one-question-outer:has-text("Investor Lens")').first();
+    this.peerAnalysisCard = page.locator('.one-question-outer:has-text("Peer Analysis")').first();
+    this.sectorAnalysisCard = page.locator('.one-question-outer:has-text("Sector Analysis")').first();
+    this.stockTechnicalsCard = page.locator('.one-question-outer:has-text("Stock Technicals")').first();
   }
+  
   getUrl(id?: string): string {
     return id ? `${BASE_URL}/snapshot/${id}` : `${BASE_URL}/snapshot`;
   }
@@ -30,6 +42,38 @@ class SnapshotPage implements IPage {
   async open(id?: string): Promise<void> {
     await this.page.goto(this.getUrl(id));
     await this.isReady();
+  }
+
+  async clickInvestorLensCard(): Promise<void> {
+    await this.investorLensCard.click();
+  }
+
+  async clickPeerAnalysisCard(): Promise<void> {
+    await this.peerAnalysisCard.click();
+  }
+
+  async clickSectorAnalysisCard(): Promise<void> {
+    await this.sectorAnalysisCard.click();
+  }
+
+  async isInvestorLensCardVisible(): Promise<boolean> {
+    return await this.investorLensCard.isVisible();
+  }
+
+  async isPeerAnalysisCardVisible(): Promise<boolean> {
+    return await this.peerAnalysisCard.isVisible();
+  }
+
+  async isSectorAnalysisCardVisible(): Promise<boolean> {
+    return await this.sectorAnalysisCard.isVisible();
+  }
+
+  async clickStockTechnicalsCard(): Promise<void> {
+    await this.stockTechnicalsCard.click();
+  }
+
+  async isStockTechnicalsCardVisible(): Promise<boolean> {
+    return await this.stockTechnicalsCard.isVisible();
   }
 }
 
