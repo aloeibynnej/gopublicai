@@ -97,6 +97,35 @@ class SnapshotPage implements IPage {
   async clickRightArrow(): Promise<void> {
     await this.rightArrowButton.click({ force: true });
   }
+
+  async clickAnalysisCard(cardName: 'investor' | 'peer' | 'sector' | 'technicals'): Promise<void> {
+    const cardMap = {
+      investor: this.investorLensCard,
+      peer: this.peerAnalysisCard,
+      sector: this.sectorAnalysisCard,
+      technicals: this.stockTechnicalsCard
+    };
+    
+    const card = cardMap[cardName];
+    await card.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(2000); // Wait for any scroll animations
+    await card.click({ force: true });
+  }
+
+  async waitForChatQuestion(questionPattern: RegExp, timeoutMs: number = 10000): Promise<void> {
+    // TODO: Frontend should add data-testid to chat question elements for more reliable selection
+    // Example: data-testid="chat-question" on the question text element
+    const questionLocator = this.page.locator(`text=${questionPattern}`).first();
+    await questionLocator.waitFor({ state: 'visible', timeout: timeoutMs });
+  }
+
+  async closeChatAndRefresh(): Promise<void> {
+    await this.chat.closeChat();
+    await this.page.waitForTimeout(1000); // Wait for chat close animation
+    await this.page.reload();
+    await this.isReady();
+    await this.page.waitForTimeout(2000); // Wait for page to stabilize after reload
+  }
 }
 
 export class SnapshotDesktopPage extends SnapshotPage {
