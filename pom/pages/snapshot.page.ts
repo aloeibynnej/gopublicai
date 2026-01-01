@@ -16,6 +16,11 @@ class SnapshotPage implements IPage {
   readonly macroCard: Locator;
   readonly leftArrowButton: Locator;
   readonly rightArrowButton: Locator;
+  readonly marketsHeading: Locator;
+  readonly usTab: Locator;
+  readonly globalTab: Locator;
+  readonly macroTab: Locator;
+  readonly peerComparisonHeading: Locator;
 
   private readonly mainContent: Locator;
 
@@ -41,6 +46,22 @@ class SnapshotPage implements IPage {
     // Carousel navigation arrows - try multiple selector strategies (semantic > data-testid > structural)
     this.leftArrowButton = page.locator('button[aria-label*="previous" i], button[aria-label*="prev" i], button[data-testid*="carousel-prev"], button[data-testid*="prev-button"], .embla__controls button').first();
     this.rightArrowButton = page.locator('button[aria-label*="next" i], button[data-testid*="carousel-next"], button[data-testid*="next-button"], .embla__controls button').last();
+    
+    // TODO: Frontend should add data-testid attributes to right side navigation elements:
+    // - Markets section: data-testid="markets-section"
+    // - US tab: data-testid="markets-us-tab"
+    // - GLOBAL tab: data-testid="markets-global-tab"
+    // - MACRO tab: data-testid="markets-macro-tab"
+    // - Peer comparison section: data-testid="peer-comparison-section"
+    
+    // Right side navigation - Markets section
+    this.marketsHeading = page.locator('text=/^MARKETS$/i').first();
+    this.usTab = page.locator('button:has-text("US"), [role="tab"]:has-text("US")').first();
+    this.globalTab = page.locator('button:has-text("GLOBAL"), [role="tab"]:has-text("GLOBAL")').first();
+    this.macroTab = page.locator('button:has-text("MACRO"), [role="tab"]:has-text("MACRO")').first();
+    
+    // Peer comparison section - use regex to match dynamic stock ticker
+    this.peerComparisonHeading = page.locator('text=/[A-Z]{1,5}\\s+VS\\s+PEERS/i').first();
   }
   
   getUrl(id?: string): string {
@@ -125,6 +146,83 @@ class SnapshotPage implements IPage {
     await this.page.reload();
     await this.isReady();
     await this.page.waitForTimeout(2000); // Wait for page to stabilize after reload
+  }
+
+  async isMarketsHeadingVisible(): Promise<boolean> {
+    return await this.marketsHeading.isVisible();
+  }
+
+  async isPeerComparisonHeadingVisible(): Promise<boolean> {
+    return await this.peerComparisonHeading.isVisible();
+  }
+
+  async verifyJustNowTimestamp(): Promise<boolean> {
+    // Verify "JUST NOW" or "< 1 MIN AGO" timestamp appears
+    const timestampLocator = this.page.locator('text=/JUST NOW|< \d+ MIN AGO/i').first();
+    return await timestampLocator.isVisible({ timeout: 5000 }).catch(() => false);
+  }
+
+  async clickUsTab(): Promise<void> {
+    await this.usTab.hover();
+    await this.page.waitForTimeout(200);
+    await this.usTab.click();
+    await this.page.waitForTimeout(1000);
+  }
+
+  async clickGlobalTab(): Promise<void> {
+    await this.globalTab.hover();
+    await this.page.waitForTimeout(200);
+    await this.globalTab.click();
+    await this.page.waitForTimeout(1000);
+  }
+
+  async clickMacroTab(): Promise<void> {
+    await this.macroTab.hover();
+    await this.page.waitForTimeout(200);
+    await this.macroTab.click();
+    await this.page.waitForTimeout(1000);
+  }
+
+  async verifyUsMarketIndices(): Promise<boolean> {
+    const indices = ['S&P 500', 'NASDAQ 100', 'RUSSELL 2000', 'DOW'];
+    
+    for (const index of indices) {
+      const indexLocator = this.page.locator(`text=/^${index}$/i`).first();
+      const isVisible = await indexLocator.isVisible({ timeout: 2000 }).catch(() => false);
+      if (!isVisible) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  async verifyGlobalMarketIndices(): Promise<boolean> {
+    const indices = ['NIKKEI 225', 'SHANGHAI', 'HANG SENG', 'FTSE 100', 'EUROSTOXX50'];
+    
+    for (const index of indices) {
+      const indexLocator = this.page.locator(`text=/^${index}$/i`).first();
+      const isVisible = await indexLocator.isVisible({ timeout: 2000 }).catch(() => false);
+      if (!isVisible) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  async verifyMacroIndices(): Promise<boolean> {
+    const indices = ['OIL', 'GOLD', 'BITCOIN', 'USD/YEN'];
+    
+    for (const index of indices) {
+      const indexLocator = this.page.locator(`text=/^${index}$/i`).first();
+      const isVisible = await indexLocator.isVisible({ timeout: 2000 }).catch(() => false);
+      if (!isVisible) {
+        return false;
+      }
+    }
+    
+    return true;
   }
 }
 
