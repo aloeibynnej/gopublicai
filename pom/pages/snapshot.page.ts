@@ -21,6 +21,7 @@ class SnapshotPage implements IPage {
   readonly globalTab: Locator;
   readonly macroTab: Locator;
   readonly peerComparisonHeading: Locator;
+  readonly yourPeersHeading: Locator;
 
   private readonly mainContent: Locator;
 
@@ -62,6 +63,13 @@ class SnapshotPage implements IPage {
     
     // Peer comparison section - use regex to match dynamic stock ticker
     this.peerComparisonHeading = page.locator('text=/[A-Z]{1,5}\\s+VS\\s+PEERS/i').first();
+    
+    // TODO: Frontend should add data-testid attributes to YOUR PEERS elements:
+    // - Your Peers section: data-testid="your-peers-section"
+    // - Peer news items: data-testid="peer-news-item"
+    
+    // YOUR PEERS section
+    this.yourPeersHeading = page.locator('text=/^YOUR PEERS$/i').first();
   }
   
   getUrl(id?: string): string {
@@ -223,6 +231,89 @@ class SnapshotPage implements IPage {
     }
     
     return true;
+  }
+
+  async isYourPeersHeadingVisible(): Promise<boolean> {
+    return await this.yourPeersHeading.isVisible();
+  }
+
+  async getPeerNewsItems(): Promise<number> {
+    // Scroll to YOUR PEERS section first (it's below the fold)
+    await this.yourPeersHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    
+    // Get all peer news items - based on screenshot, they appear to be divs with marcon-question-button class
+    const items = this.page.locator('div[class*="marcon-question-button"]');
+    return await items.count();
+  }
+
+  async getPeerNewsItemText(index: number = 0): Promise<string | null> {
+    // Scroll to YOUR PEERS section first
+    await this.yourPeersHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    
+    // Get peer news items
+    const items = this.page.locator('div[class*="marcon-question-button"]');
+    const item = items.nth(index);
+    
+    // Get the text directly from the button
+    return await item.textContent();
+  }
+
+  async clickPeerNewsItem(index: number = 0): Promise<string | null> {
+    // Scroll to YOUR PEERS section first
+    await this.yourPeersHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    
+    // Get peer news items
+    const items = this.page.locator('div[class*="marcon-question-button"]');
+    const item = items.nth(index);
+    
+    // Capture the text directly from the button before clicking
+    const itemText = await item.textContent();
+    
+    // Scroll item into view and click
+    await item.scrollIntoViewIfNeeded();
+    await item.hover({ force: true });
+    await this.page.waitForTimeout(200);
+    await item.click({ force: true });
+    await this.page.waitForTimeout(2000);
+    
+    return itemText;
+  }
+
+  async verifyChatQuestionMatches(expectedText: string): Promise<boolean> {
+    // Wait for chat to open and question to appear
+    await this.page.waitForTimeout(2000);
+    
+    // The captured text might have extra formatting (ticker, date, etc.)
+    // Extract just the main headline part (after the date)
+    // Format is typically: "TICKER DATE HEADLINE"
+    // Example: "AMZN30 DecAWS to invest $50B..."
+    
+    // Try to find the text as-is first
+    let questionLocator = this.page.locator(`text="${expectedText}"`).first();
+    let isVisible = await questionLocator.isVisible({ timeout: 2000 }).catch(() => false);
+    
+    if (isVisible) {
+      return true;
+    }
+    
+    // If not found, try to extract just the headline portion
+    // Look for the headline text (usually starts after the date pattern)
+    const headlineMatch = expectedText.match(/[A-Z]{3,5}\d{1,2}\s+[A-Za-z]{3}(.+)$/);
+    if (headlineMatch && headlineMatch[1]) {
+      const headline = headlineMatch[1].trim();
+      questionLocator = this.page.locator(`text="${headline}"`).first();
+      isVisible = await questionLocator.isVisible({ timeout: 2000 }).catch(() => false);
+      if (isVisible) {
+        return true;
+      }
+    }
+    
+    // As a last resort, check if any part of the text appears in chat
+    const partialMatch = this.page.locator(`text=/${expectedText.substring(0, 30)}/i`).first();
+    return await partialMatch.isVisible({ timeout: 2000 }).catch(() => false);
   }
 }
 
