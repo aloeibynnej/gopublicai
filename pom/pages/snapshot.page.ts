@@ -13,6 +13,9 @@ class SnapshotPage implements IPage {
   readonly peerAnalysisCard: Locator;
   readonly sectorAnalysisCard: Locator;
   readonly stockTechnicalsCard: Locator;
+  readonly macroCard: Locator;
+  readonly leftArrowButton: Locator;
+  readonly rightArrowButton: Locator;
 
   private readonly mainContent: Locator;
 
@@ -27,6 +30,17 @@ class SnapshotPage implements IPage {
     this.peerAnalysisCard = page.locator('.one-question-outer:has-text("Peer Analysis")').first();
     this.sectorAnalysisCard = page.locator('.one-question-outer:has-text("Sector Analysis")').first();
     this.stockTechnicalsCard = page.locator('.one-question-outer:has-text("Stock Technicals")').first();
+    // MACRO card - ensure we only match the analysis card, not the sidebar navigation
+    this.macroCard = page.locator('.one-question-outer').filter({ hasText: 'MACRO' }).first();
+    
+    // TODO: Frontend team should add data-testid attributes to carousel navigation arrows:
+    // - Left arrow button: data-testid="carousel-prev-button" or data-testid="analysis-carousel-prev"
+    // - Right arrow button: data-testid="carousel-next-button" or data-testid="analysis-carousel-next"
+    // These buttons are in the .embla__controls section below the analysis cards carousel
+    
+    // Carousel navigation arrows - try multiple selector strategies (semantic > data-testid > structural)
+    this.leftArrowButton = page.locator('button[aria-label*="previous" i], button[aria-label*="prev" i], button[data-testid*="carousel-prev"], button[data-testid*="prev-button"], .embla__controls button').first();
+    this.rightArrowButton = page.locator('button[aria-label*="next" i], button[data-testid*="carousel-next"], button[data-testid*="next-button"], .embla__controls button').last();
   }
   
   getUrl(id?: string): string {
@@ -74,6 +88,14 @@ class SnapshotPage implements IPage {
 
   async isStockTechnicalsCardVisible(): Promise<boolean> {
     return await this.stockTechnicalsCard.isVisible();
+  }
+
+  async clickLeftArrow(): Promise<void> {
+    await this.leftArrowButton.click({ force: true });
+  }
+
+  async clickRightArrow(): Promise<void> {
+    await this.rightArrowButton.click({ force: true });
   }
 }
 
