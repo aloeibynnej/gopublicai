@@ -22,6 +22,10 @@ class SnapshotPage implements IPage {
   readonly macroTab: Locator;
   readonly peerComparisonHeading: Locator;
   readonly yourPeersHeading: Locator;
+  readonly marketContextHeading: Locator;
+  readonly stockPrice: Locator;
+  readonly usdLabel: Locator;
+  readonly pastMonthLabel: Locator;
 
   private readonly mainContent: Locator;
 
@@ -70,6 +74,24 @@ class SnapshotPage implements IPage {
     
     // YOUR PEERS section
     this.yourPeersHeading = page.locator('text=/^YOUR PEERS$/i').first();
+    
+    // TODO: Frontend should add data-testid attributes to Market Context chart elements:
+    // - Market Context section: data-testid="market-context-section"
+    // - Stock price: data-testid="stock-price"
+    // - Currency label: data-testid="currency-label"
+    // - Time period label: data-testid="time-period-label"
+    
+    // Market Context chart section (TradingView widget - may be in iframe)
+    this.marketContextHeading = page.locator('text=/^MARKET CONTEXT$/i').first();
+    // TradingView widget elements - need to access through iframe
+    // The widget is embedded in an iframe, so we need to find the iframe first
+    const tvIframe = page.frameLocator('iframe[id*="tradingview"], iframe[src*="tradingview"]').first();
+    // Stock price - in TradingView widget with class tv-widget-chart__price-value
+    this.stockPrice = tvIframe.locator('.tv-widget-chart__price-value').first();
+    // USD label - in TradingView widget with class containing symbol-currency
+    this.usdLabel = tvIframe.locator('span[class*="symbol-currency"]').first();
+    // Past month label - has id="delta-range"
+    this.pastMonthLabel = tvIframe.locator('#delta-range, span[id="delta-range"]').first();
   }
   
   getUrl(id?: string): string {
@@ -314,6 +336,52 @@ class SnapshotPage implements IPage {
     // As a last resort, check if any part of the text appears in chat
     const partialMatch = this.page.locator(`text=/${expectedText.substring(0, 30)}/i`).first();
     return await partialMatch.isVisible({ timeout: 2000 }).catch(() => false);
+  }
+
+  async isMarketContextHeadingVisible(): Promise<boolean> {
+    // Scroll to Market Context section first (it may be below the fold)
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    return await this.marketContextHeading.isVisible();
+  }
+
+  async isStockPriceVisible(): Promise<boolean> {
+    // Scroll to ensure chart is visible
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    return await this.stockPrice.isVisible();
+  }
+
+  async getStockPriceValue(): Promise<string | null> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    return await this.stockPrice.textContent();
+  }
+
+  async isUsdLabelVisible(): Promise<boolean> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    return await this.usdLabel.isVisible();
+  }
+
+  async isPastMonthLabelVisible(): Promise<boolean> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    return await this.pastMonthLabel.isVisible();
+  }
+
+  async verifyMarketContextChartLoads(): Promise<boolean> {
+    // Scroll to Market Context section first
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    
+    // Verify all key elements of the Market Context chart are visible
+    const headingVisible = await this.isMarketContextHeadingVisible();
+    const priceVisible = await this.isStockPriceVisible();
+    const usdVisible = await this.isUsdLabelVisible();
+    const pastMonthVisible = await this.isPastMonthLabelVisible();
+    
+    return headingVisible && priceVisible && usdVisible && pastMonthVisible;
   }
 }
 
