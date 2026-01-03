@@ -112,19 +112,18 @@ class SnapshotPage implements IPage {
     // - 5Y button: data-testid="time-period-5y"
     // - All button: data-testid="time-period-all"
     
-    // Time period buttons - these appear to be custom UI elements in the main page
-    // Looking for any element with the exact text, will be near Market Context section
-    // Using getByRole to find buttons specifically
-    this.timePeriod1DButton = page.getByRole('button', { name: '1D', exact: true });
-    this.timePeriod1MButton = page.getByRole('button', { name: '1M', exact: true });
-    this.timePeriod3MButton = page.getByRole('button', { name: '3M', exact: true });
-    this.timePeriod1YButton = page.getByRole('button', { name: '1Y', exact: true });
-    this.timePeriod5YButton = page.getByRole('button', { name: '5Y', exact: true });
-    this.timePeriodAllButton = page.getByRole('button', { name: 'All', exact: true });
+    // Time period buttons - these are inside the TradingView iframe
+    // The buttons are in a div with class "tv-widget-chart__timeframes"
+    this.timePeriod1DButton = tvIframe.locator('text=/^1D$/').first();
+    this.timePeriod1MButton = tvIframe.locator('text=/^1M$/').first();
+    this.timePeriod3MButton = tvIframe.locator('text=/^3M$/').first();
+    this.timePeriod1YButton = tvIframe.locator('text=/^1Y$/').first();
+    this.timePeriod5YButton = tvIframe.locator('text=/^5Y$/').first();
+    this.timePeriodAllButton = tvIframe.locator('text=/^All$/').first();
     
     // Percentage change text - matches patterns like "+177,793.45%", "-4.38%", etc.
-    // This is in the main page near the time period buttons
-    this.percentageChangeText = page.locator('text=/[+-]?\\d+[,.]?\\d*\\.?\\d+%/').first();
+    // This is also inside the TradingView iframe (id="delta-pt")
+    this.percentageChangeText = tvIframe.locator('#delta-pt, span[id="delta-pt"]').first();
     
     // TODO: Frontend should add data-testid attributes to stock header elements:
     // - Stock ticker: data-testid="stock-ticker"
@@ -510,54 +509,42 @@ class SnapshotPage implements IPage {
 
   async clickTimePeriod1D(): Promise<void> {
     await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
-    await this.timePeriod1DButton.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1500);
     await this.timePeriod1DButton.click();
     await this.page.waitForTimeout(1500);
   }
 
   async clickTimePeriod1M(): Promise<void> {
     await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
-    await this.timePeriod1MButton.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1500);
     await this.timePeriod1MButton.click();
     await this.page.waitForTimeout(1500);
   }
 
   async clickTimePeriod3M(): Promise<void> {
     await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
-    await this.timePeriod3MButton.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1500);
     await this.timePeriod3MButton.click();
     await this.page.waitForTimeout(1500);
   }
 
   async clickTimePeriod1Y(): Promise<void> {
     await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
-    await this.timePeriod1YButton.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1500);
     await this.timePeriod1YButton.click();
     await this.page.waitForTimeout(1500);
   }
 
   async clickTimePeriod5Y(): Promise<void> {
     await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
-    await this.timePeriod5YButton.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1500);
     await this.timePeriod5YButton.click();
     await this.page.waitForTimeout(1500);
   }
 
   async clickTimePeriodAll(): Promise<void> {
     await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
-    await this.timePeriodAllButton.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1500);
     await this.timePeriodAllButton.click();
     await this.page.waitForTimeout(1500);
   }
@@ -571,7 +558,9 @@ class SnapshotPage implements IPage {
   async verifyTimePeriodLabelContains(expectedText: string): Promise<boolean> {
     await this.marketContextHeading.scrollIntoViewIfNeeded();
     await this.page.waitForTimeout(1000);
-    const labelLocator = this.page.locator(`text=/${expectedText}/i`).first();
+    // The time period label is inside the TradingView iframe (id="delta-range")
+    const tvIframe = this.page.frameLocator('iframe[id*="tradingview"], iframe[src*="tradingview"]').first();
+    const labelLocator = tvIframe.locator(`text=/${expectedText}/i`).first();
     return await labelLocator.isVisible({ timeout: 3000 }).catch(() => false);
   }
 }
