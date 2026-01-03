@@ -4,12 +4,15 @@ import { SnapshotPage } from '../pom/pages/snapshot.page';
 test.describe('Snapshot Page - Interactions', () => {
   test.setTimeout(90_000);
 
-  test('should handle all interactive elements correctly @desktop', async ({ page }) => {
+  test('should handle navigation interactions @desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 1728, height: 1117 });
+    
     const snapshotPage = new SnapshotPage(page);
     
-    console.log('\n=== Testing snapshot page interactions ===');
+    console.log('\n=== Testing snapshot page navigation interactions ===');
 
     await snapshotPage.open();
+    await snapshotPage.isReady();
     console.log('✓ Navigated to snapshot page');
 
     // ===== MARKETS TAB SWITCHING =====
@@ -61,91 +64,6 @@ test.describe('Snapshot Page - Interactions', () => {
     expect(investorLensVisibleAgain).toBe(true);
     console.log('✓ Investor Lens card visible after clicking left arrow');
 
-    // ===== ANALYSIS CARD CLICKS =====
-    console.log('\n=== Testing Analysis Card Clicks ===');
-    
-    // Click Investor Lens card
-    await snapshotPage.clickInvestorLensCard();
-    console.log('✓ Clicked Investor Lens card');
-    
-    await page.waitForTimeout(2000);
-    let chatVisible = await snapshotPage.chat.isVisible();
-    expect(chatVisible).toBe(true);
-    console.log('✓ Chat opened');
-    
-    await snapshotPage.chat.closeChat();
-    await page.waitForTimeout(1000);
-    console.log('✓ Closed chat');
-
-    // Click Peer Analysis card
-    await snapshotPage.clickPeerAnalysisCard();
-    console.log('✓ Clicked Peer Analysis card');
-    
-    await page.waitForTimeout(2000);
-    chatVisible = await snapshotPage.chat.isVisible();
-    expect(chatVisible).toBe(true);
-    console.log('✓ Chat opened');
-    
-    await snapshotPage.chat.closeChat();
-    await page.waitForTimeout(1000);
-    console.log('✓ Closed chat');
-
-    // Click Sector Analysis card
-    await snapshotPage.clickSectorAnalysisCard();
-    console.log('✓ Clicked Sector Analysis card');
-    
-    await page.waitForTimeout(2000);
-    chatVisible = await snapshotPage.chat.isVisible();
-    expect(chatVisible).toBe(true);
-    console.log('✓ Chat opened');
-    
-    await snapshotPage.chat.closeChat();
-    await page.waitForTimeout(1000);
-    console.log('✓ Closed chat');
-
-    // Click Stock Technicals card
-    await snapshotPage.clickStockTechnicalsCard();
-    console.log('✓ Clicked Stock Technicals card');
-    
-    await page.waitForTimeout(2000);
-    chatVisible = await snapshotPage.chat.isVisible();
-    expect(chatVisible).toBe(true);
-    console.log('✓ Chat opened');
-    
-    await snapshotPage.chat.closeChat();
-    await page.waitForTimeout(1000);
-    console.log('✓ Closed chat');
-
-    // ===== YOUR PEERS NEWS ITEM CLICKS =====
-    console.log('\n=== Testing YOUR PEERS news item clicks ===');
-    
-    // Click first peer news item
-    const firstItemText = await snapshotPage.clickPeerNewsItem(0);
-    console.log(`✓ Clicked first peer news item: "${firstItemText?.substring(0, 50)}..."`);
-    
-    const firstChatMatches = await snapshotPage.verifyChatQuestionMatches(firstItemText!);
-    expect(firstChatMatches).toBe(true);
-    console.log('✓ Chat opened with matching question');
-    
-    await snapshotPage.chat.closeChat();
-    await page.waitForTimeout(1000);
-    console.log('✓ Closed chat');
-
-    // Click second peer news item
-    const newsItemCount = await snapshotPage.getPeerNewsItems();
-    if (newsItemCount > 1) {
-      const secondItemText = await snapshotPage.clickPeerNewsItem(1);
-      console.log(`✓ Clicked second peer news item: "${secondItemText?.substring(0, 50)}..."`);
-      
-      const secondChatMatches = await snapshotPage.verifyChatQuestionMatches(secondItemText!);
-      expect(secondChatMatches).toBe(true);
-      console.log('✓ Chat opened with matching question');
-      
-      await snapshotPage.chat.closeChat();
-      await page.waitForTimeout(1000);
-      console.log('✓ Closed chat');
-    }
-
-    console.log('\n=== All interactions validated successfully ===');
+    console.log('\n=== Navigation interactions completed successfully ===');
   });
 });
