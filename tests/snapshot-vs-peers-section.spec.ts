@@ -23,6 +23,21 @@ test.describe('Snapshot VS PEERS Section', () => {
     expect(peerComparisonVisible).toBe(true);
     console.log('✓ Peer comparison heading visible (e.g., "AAPL VS PEERS", "PLTR VS PEERS")');
 
+    // ===== VERIFY USER'S STOCK TICKER DISPLAYS =====
+    console.log('\n=== Testing User\'s Stock Ticker ===');
+    
+    // Get the heading text to extract the ticker
+    const headingText = await page.locator('text=/[A-Z]{1,5}\\s+VS\\s+PEERS/i').first().textContent();
+    expect(headingText).toBeTruthy();
+    
+    // Extract ticker from heading (e.g., "AAPL VS PEERS" -> "AAPL")
+    const tickerMatch = headingText?.match(/^([A-Z]{1,5})\s+VS\s+PEERS/i);
+    expect(tickerMatch).toBeTruthy();
+    
+    const userTicker = tickerMatch?.[1];
+    expect(userTicker).toBeTruthy();
+    console.log(`✓ User's stock ticker displayed: ${userTicker}`);
+
     // ===== VERIFY PEER COMPANIES DISPLAY =====
     console.log('\n=== Testing Peer Companies Data ===');
     
