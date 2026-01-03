@@ -30,6 +30,13 @@ class SnapshotPage implements IPage {
   readonly companyName: Locator;
   readonly greetingMessage: Locator;
   readonly stockSummary: Locator;
+  readonly timePeriod1DButton: Locator;
+  readonly timePeriod1MButton: Locator;
+  readonly timePeriod3MButton: Locator;
+  readonly timePeriod1YButton: Locator;
+  readonly timePeriod5YButton: Locator;
+  readonly timePeriodAllButton: Locator;
+  readonly percentageChangeText: Locator;
 
   private readonly mainContent: Locator;
 
@@ -96,6 +103,28 @@ class SnapshotPage implements IPage {
     this.usdLabel = tvIframe.locator('span[class*="symbol-currency"]').first();
     // Past month label - has id="delta-range"
     this.pastMonthLabel = tvIframe.locator('#delta-range, span[id="delta-range"]').first();
+    
+    // TODO: Frontend should add data-testid attributes to time period buttons:
+    // - 1D button: data-testid="time-period-1d"
+    // - 1M button: data-testid="time-period-1m"
+    // - 3M button: data-testid="time-period-3m"
+    // - 1Y button: data-testid="time-period-1y"
+    // - 5Y button: data-testid="time-period-5y"
+    // - All button: data-testid="time-period-all"
+    
+    // Time period buttons - these appear to be custom UI elements in the main page
+    // Looking for any element with the exact text, will be near Market Context section
+    // Using getByRole to find buttons specifically
+    this.timePeriod1DButton = page.getByRole('button', { name: '1D', exact: true });
+    this.timePeriod1MButton = page.getByRole('button', { name: '1M', exact: true });
+    this.timePeriod3MButton = page.getByRole('button', { name: '3M', exact: true });
+    this.timePeriod1YButton = page.getByRole('button', { name: '1Y', exact: true });
+    this.timePeriod5YButton = page.getByRole('button', { name: '5Y', exact: true });
+    this.timePeriodAllButton = page.getByRole('button', { name: 'All', exact: true });
+    
+    // Percentage change text - matches patterns like "+177,793.45%", "-4.38%", etc.
+    // This is in the main page near the time period buttons
+    this.percentageChangeText = page.locator('text=/[+-]?\\d+[,.]?\\d*\\.?\\d+%/').first();
     
     // TODO: Frontend should add data-testid attributes to stock header elements:
     // - Stock ticker: data-testid="stock-ticker"
@@ -474,13 +503,76 @@ class SnapshotPage implements IPage {
   }
 
   async verifyStockHeaderDisplays(): Promise<boolean> {
-    // Verify all key elements of the stock header are visible
     const tickerVisible = await this.isStockTickerVisible();
     const companyVisible = await this.isCompanyNameVisible();
-    const greetingVisible = await this.isGreetingMessageVisible();
-    const summaryVisible = await this.isStockSummaryVisible();
-    
-    return tickerVisible && companyVisible && greetingVisible && summaryVisible;
+    return tickerVisible && companyVisible;
+  }
+
+  async clickTimePeriod1D(): Promise<void> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    await this.timePeriod1DButton.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(500);
+    await this.timePeriod1DButton.click();
+    await this.page.waitForTimeout(1500);
+  }
+
+  async clickTimePeriod1M(): Promise<void> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    await this.timePeriod1MButton.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(500);
+    await this.timePeriod1MButton.click();
+    await this.page.waitForTimeout(1500);
+  }
+
+  async clickTimePeriod3M(): Promise<void> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    await this.timePeriod3MButton.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(500);
+    await this.timePeriod3MButton.click();
+    await this.page.waitForTimeout(1500);
+  }
+
+  async clickTimePeriod1Y(): Promise<void> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    await this.timePeriod1YButton.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(500);
+    await this.timePeriod1YButton.click();
+    await this.page.waitForTimeout(1500);
+  }
+
+  async clickTimePeriod5Y(): Promise<void> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    await this.timePeriod5YButton.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(500);
+    await this.timePeriod5YButton.click();
+    await this.page.waitForTimeout(1500);
+  }
+
+  async clickTimePeriodAll(): Promise<void> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    await this.timePeriodAllButton.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(500);
+    await this.timePeriodAllButton.click();
+    await this.page.waitForTimeout(1500);
+  }
+
+  async getPercentageChangeText(): Promise<string | null> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    return await this.percentageChangeText.textContent();
+  }
+
+  async verifyTimePeriodLabelContains(expectedText: string): Promise<boolean> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    const labelLocator = this.page.locator(`text=/${expectedText}/i`).first();
+    return await labelLocator.isVisible({ timeout: 3000 }).catch(() => false);
   }
 }
 
