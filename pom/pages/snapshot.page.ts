@@ -26,6 +26,10 @@ class SnapshotPage implements IPage {
   readonly stockPrice: Locator;
   readonly usdLabel: Locator;
   readonly pastMonthLabel: Locator;
+  readonly stockTicker: Locator;
+  readonly companyName: Locator;
+  readonly greetingMessage: Locator;
+  readonly stockSummary: Locator;
 
   private readonly mainContent: Locator;
 
@@ -92,6 +96,25 @@ class SnapshotPage implements IPage {
     this.usdLabel = tvIframe.locator('span[class*="symbol-currency"]').first();
     // Past month label - has id="delta-range"
     this.pastMonthLabel = tvIframe.locator('#delta-range, span[id="delta-range"]').first();
+    
+    // TODO: Frontend should add data-testid attributes to stock header elements:
+    // - Stock ticker: data-testid="stock-ticker"
+    // - Company name: data-testid="company-name"
+    // - Greeting message: data-testid="greeting-message"
+    // - Stock summary: data-testid="stock-summary"
+    
+    // Stock header elements
+    // Stock ticker - matches 1-5 uppercase letters (AAPL, WMT, GOOGL, etc.)
+    this.stockTicker = page.locator('text=/^[A-Z]{1,5}$/').first();
+    // Company name - in TradingView widget with class tv-widget-chart__title
+    // Need to access through iframe like the other TradingView elements
+    this.companyName = tvIframe.locator('.tv-widget-chart__title, h2[class*="title"]').first();
+    // Greeting message - matches "Good morning/afternoon/evening/night, [Name]"
+    // This is outside the iframe, in the main page
+    this.greetingMessage = page.locator('text=/Good (morning|afternoon|evening|night),/i').first();
+    // Stock summary - the main paragraph with stock information (look for longer paragraphs)
+    // This is also outside the iframe
+    this.stockSummary = page.locator('p').filter({ hasText: /.{100,}/ }).first();
   }
   
   getUrl(id?: string): string {
@@ -382,6 +405,78 @@ class SnapshotPage implements IPage {
     const pastMonthVisible = await this.isPastMonthLabelVisible();
     
     return headingVisible && priceVisible && usdVisible && pastMonthVisible;
+  }
+
+  async isStockTickerVisible(): Promise<boolean> {
+    // Scroll to top to ensure stock header is visible
+    await this.page.evaluate(() => window.scrollTo(0, 0));
+    await this.page.waitForTimeout(500);
+    return await this.stockTicker.isVisible();
+  }
+
+  async getStockTickerValue(): Promise<string | null> {
+    await this.page.evaluate(() => window.scrollTo(0, 0));
+    await this.page.waitForTimeout(500);
+    return await this.stockTicker.textContent();
+  }
+
+  async isCompanyNameVisible(): Promise<boolean> {
+    // Scroll to Market Context section where the TradingView widget is
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    return await this.companyName.isVisible();
+  }
+
+  async getCompanyNameValue(): Promise<string | null> {
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.page.waitForTimeout(1000);
+    return await this.companyName.textContent();
+  }
+
+  async isGreetingMessageVisible(): Promise<boolean> {
+    // Scroll to top first, then down to find greeting message
+    await this.page.evaluate(() => window.scrollTo(0, 0));
+    await this.page.waitForTimeout(300);
+    // Scroll down to where greeting typically appears
+    await this.page.evaluate(() => window.scrollTo(0, 400));
+    await this.page.waitForTimeout(500);
+    return await this.greetingMessage.isVisible({ timeout: 2000 }).catch(() => false);
+  }
+
+  async getGreetingMessageValue(): Promise<string | null> {
+    await this.page.evaluate(() => window.scrollTo(0, 0));
+    await this.page.waitForTimeout(300);
+    await this.page.evaluate(() => window.scrollTo(0, 400));
+    await this.page.waitForTimeout(500);
+    return await this.greetingMessage.textContent().catch(() => null);
+  }
+
+  async isStockSummaryVisible(): Promise<boolean> {
+    // Scroll to top first, then down to find stock summary paragraph
+    await this.page.evaluate(() => window.scrollTo(0, 0));
+    await this.page.waitForTimeout(300);
+    // Scroll down further to where summary typically appears
+    await this.page.evaluate(() => window.scrollTo(0, 600));
+    await this.page.waitForTimeout(500);
+    return await this.stockSummary.isVisible({ timeout: 2000 }).catch(() => false);
+  }
+
+  async getStockSummaryValue(): Promise<string | null> {
+    await this.page.evaluate(() => window.scrollTo(0, 0));
+    await this.page.waitForTimeout(300);
+    await this.page.evaluate(() => window.scrollTo(0, 600));
+    await this.page.waitForTimeout(500);
+    return await this.stockSummary.textContent().catch(() => null);
+  }
+
+  async verifyStockHeaderDisplays(): Promise<boolean> {
+    // Verify all key elements of the stock header are visible
+    const tickerVisible = await this.isStockTickerVisible();
+    const companyVisible = await this.isCompanyNameVisible();
+    const greetingVisible = await this.isGreetingMessageVisible();
+    const summaryVisible = await this.isStockSummaryVisible();
+    
+    return tickerVisible && companyVisible && greetingVisible && summaryVisible;
   }
 }
 
