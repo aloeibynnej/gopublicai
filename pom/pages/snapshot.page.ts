@@ -237,6 +237,10 @@ class SnapshotPage implements IPage {
   }
 
   async verifyUsMarketIndices(): Promise<boolean> {
+    // Wait for markets heading to be visible first
+    await this.marketsHeading.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
+    await this.page.waitForTimeout(1000);
+    
     const indices = ['S&P 500', 'NASDAQ 100', 'RUSSELL 2000', 'DOW'];
     
     for (const index of indices) {
