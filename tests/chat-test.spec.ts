@@ -37,10 +37,11 @@ test('chat window can be opened @desktop', async ({ page }) => {
   await page.waitForTimeout(3000);
   console.log('✓ Conversation loaded');
 
-  // Close history panel by clicking hamburger button again (it's currently open)
-  await chatComponent.chatHistoryButton.click();
+  // Dismiss history panel by clicking on the chat area (clicking hamburger doesn't close it)
+  // Click on the chat input area to dismiss the history panel overlay
+  await chatComponent.chatInput.click();
   await page.waitForTimeout(1000);
-  console.log('✓ History panel closed');
+  console.log('✓ History panel dismissed');
 
   // Start a new chat
   await chatComponent.clickNewChat();
