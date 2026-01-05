@@ -17,7 +17,8 @@ export class ChatComponent {
     rootSelector: string = '.chat-layer'
   ) {
     this.container = this.page.locator(rootSelector);
-    this.newChatButton = this.container.locator('button:has-text("NEW CHAT"), [role="button"]:has-text("NEW CHAT")').first();
+    // TODO: Frontend should add data-testid="new-chat-button"
+    this.newChatButton = this.page.locator('.chat-header-add-button, button.chat-header-add-button, [class*="chat-header-add-button"]').first();
     this.chatInput = this.page.getByPlaceholder('Ask Charlie...');
     this.sendButton = this.page.locator('button[type="submit"]');
     this.chatHistoryItems = this.page.locator('[role="button"][aria-label^="Chat from"]');
