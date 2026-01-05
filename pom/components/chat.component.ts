@@ -3,7 +3,7 @@ import { Locator, Page } from '@playwright/test';
 export class ChatComponent {
   readonly container: Locator;
   private readonly newChatButton: Locator;
-  private readonly chatInput: Locator;
+  readonly chatInput: Locator;
   private readonly sendButton: Locator;
   private readonly chatHistoryItems: Locator;
   private readonly closeButton: Locator;
