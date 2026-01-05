@@ -1,29 +1,31 @@
 import { Locator, Page } from '@playwright/test';
 
 export class ChatComponent {
-  private readonly container: Locator;
+  readonly container: Locator;
   private readonly newChatButton: Locator;
   private readonly chatInput: Locator;
   private readonly sendButton: Locator;
   private readonly chatHistoryItems: Locator;
   private readonly closeButton: Locator;
+  private readonly chatTriggerButton: Locator;
   readonly reasoningText: Locator;
   readonly chatHistoryButton: Locator;
   readonly chatResponseText: Locator;
 
   constructor(
     private readonly page: Page,
-    rootSelector: string = '[role="dialog"]'
+    rootSelector: string = '.chat-layer'
   ) {
     this.container = this.page.locator(rootSelector);
-    this.newChatButton = this.page.getByRole('button', { name: 'Start new chat' });
+    this.newChatButton = this.container.locator('button:has-text("NEW CHAT"), [role="button"]:has-text("NEW CHAT")').first();
     this.chatInput = this.page.getByPlaceholder('Ask Charlie...');
     this.sendButton = this.page.locator('button[type="submit"]');
     this.chatHistoryItems = this.page.locator('[role="button"][aria-label^="Chat from"]');
-    this.closeButton = this.page.getByRole('button', { name: 'Close chat' });
-    this.reasoningText = this.page.getByRole('button', { name: 'Reasoning' });
-    this.chatHistoryButton = this.page.getByRole('button', { name: 'Open chat history' });
-    this.chatResponseText = this.page.getByText('Good morning, Michal. Your').first();
+    this.closeButton = this.page.locator('[class*="fixed"] button:has(svg), [class*="absolute"] button:has(svg)').last();
+    this.chatTriggerButton = this.page.locator('button:has-text("Charlie"), button[aria-label*="Charlie"], button[data-testid*="chat-trigger"], [class*="chat"][class*="button"], [class*="fab"]').first();
+    this.reasoningText = this.page.getByText('Reasoning').first();
+    this.chatHistoryButton = this.page.locator('.chat-header-button, button.chat-header-button, [class*="chat-header-button"]').first();
+    this.chatResponseText = this.page.getByText(/Good (morning|afternoon|evening|day|night),.*Your/i).first();
   }
 
   async isVisible(): Promise<boolean> {
@@ -32,6 +34,36 @@ export class ChatComponent {
 
   async waitForComponent(): Promise<void> {
     await this.container.waitFor({ state: 'visible' });
+  }
+
+  async openChat(): Promise<void> {
+    const isVisible = await this.isVisible();
+    if (!isVisible) {
+      const possibleSelectors = [
+        'button:has-text("Charlie")',
+        'button[aria-label*="Charlie" i]',
+        'button[aria-label*="chat" i]',
+        'button[data-testid*="chat"]',
+        '[class*="fixed"][class*="bottom"] button',
+        '[class*="floating"] button',
+        'button[class*="fab"]'
+      ];
+      
+      for (const selector of possibleSelectors) {
+        const button = this.page.locator(selector).first();
+        const count = await button.count();
+        if (count > 0 && await button.isVisible()) {
+          await button.click();
+          await this.page.waitForTimeout(1000);
+          const nowVisible = await this.isVisible();
+          if (nowVisible) {
+            return;
+          }
+        }
+      }
+      
+      throw new Error('Could not find chat trigger button. Please add a data-testid to the chat trigger button.');
+    }
   }
 
   async clickNewChat(): Promise<void> {
@@ -59,8 +91,15 @@ export class ChatComponent {
   }
 
   async clickChatHistoryItemByText(text: string): Promise<void> {
+    // Click chat input to ensure chat UI is active
     await this.chatInput.click();
+    await this.page.waitForTimeout(500);
+    
+    // Click chat history button
     await this.chatHistoryButton.click();
+    await this.page.waitForTimeout(1000);
+    
+    // Click the specific history item
     await this.page.locator(`[role="button"]`).filter({ hasText: text }).first().click();
   }
 
