@@ -91,16 +91,14 @@ export class ChatComponent {
   }
 
   async clickChatHistoryItemByText(text: string): Promise<void> {
-    // Click chat input to ensure chat UI is active
-    await this.chatInput.click();
-    await this.page.waitForTimeout(500);
-    
-    // Click chat history button
+    // Click the hamburger button to open/ensure history panel is visible
     await this.chatHistoryButton.click();
     await this.page.waitForTimeout(1000);
     
-    // Click the specific history item
-    await this.page.locator(`[role="button"]`).filter({ hasText: text }).first().click();
+    // Click the specific history item - it's just text in the sidebar
+    const historyItem = this.page.locator(`text=${text}`).first();
+    await historyItem.click();
+    await this.page.waitForTimeout(1000);
   }
 
   async closeChat(): Promise<void> {
