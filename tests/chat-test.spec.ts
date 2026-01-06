@@ -30,8 +30,14 @@ test.skip('chat window can be opened @desktop', async ({ page }) => {
   
   // TODO: Chat history functionality not fully implemented in this environment yet
   // Shows "Failed to fetch chat history" in sidebar
-  // Skipping history, new chat, and close chat tests until backend is ready
+  // Keeping test code below for when backend is ready
   
-  console.log('✓ Chat message sent and displayed successfully');
-  console.log('⚠ Skipping chat history tests - not implemented in this environment yet');
+  await chatComponent.clickChatHistoryItemByText(`Hello World ${unixTimestamp}`);
+  await expect(page.locator('text=Hello World ' + unixTimestamp)).toBeVisible();
+
+  await chatComponent.clickNewChat();
+  await chatComponent.waitForChatResponse();
+
+  await chatComponent.closeChat();
+  await expect(page.locator('text=Hello World ' + unixTimestamp)).not.toBeVisible();
 });
