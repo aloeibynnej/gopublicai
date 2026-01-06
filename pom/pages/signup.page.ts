@@ -10,7 +10,7 @@ export class SignupPage implements IPage {
   private readonly passwordPlaceholder = 'Password';
   private readonly createAccountButtonText = 'CREATE ACCOUNT';
   private readonly loginLinkText = 'Log in';
-  private readonly unlicensedToastText = 'IT SEEMS THAT YOU DO NOT HAVE AN ACTIVE LICENSE. WE WILL CONTACT YOU SHORTLY WITH THE NEXT STEPS.';
+  private readonly unlicensedToastText = 'It seems that you do not have an active license';
 
   constructor(page: Page) {
     this.page = page;

@@ -3,6 +3,9 @@ import { SignupPage } from '../pom/pages';
 
 test.describe('Signup Page - Unlicensed Email', () => {
   test.setTimeout(30_000);
+  
+  // Don't use auth state - signup requires logged out session
+  test.use({ storageState: { cookies: [], origins: [] } });
 
   test('should display signup page with all elements @desktop', async ({ page }) => {
     const signupPage = new SignupPage(page);
@@ -55,11 +58,11 @@ test.describe('Signup Page - Unlicensed Email', () => {
     console.log('✓ Unlicensed toast is visible');
 
     const toastText = await signupPage.getUnlicensedToastText();
-    expect(toastText).toContain('IT SEEMS THAT YOU DO NOT HAVE AN ACTIVE LICENSE');
-    expect(toastText).toContain('WE WILL CONTACT YOU SHORTLY WITH THE NEXT STEPS');
-    console.log('✓ Toast message verified: "IT SEEMS THAT YOU DO NOT HAVE AN ACTIVE LICENSE. WE WILL CONTACT YOU SHORTLY WITH THE NEXT STEPS."');
+    expect(toastText).toContain('It seems that you do not have an active license');
+    expect(toastText).toContain('We will contact you shortly with the next steps');
+    console.log('✓ Toast message verified');
 
-    const toastElement = page.getByText('IT SEEMS THAT YOU DO NOT HAVE AN ACTIVE LICENSE');
+    const toastElement = page.getByText('It seems that you do not have an active license');
     const boundingBox = await toastElement.boundingBox();
     if (boundingBox) {
       expect(boundingBox.x).toBeLessThan(page.viewportSize()!.width / 2);
