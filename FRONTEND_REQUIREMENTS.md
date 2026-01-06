@@ -2,7 +2,7 @@
 
 ## 🎯 **Priority: Role-Based Selectors First**
 
-Per Michal's guidance, **role-based selectors are the FIRST CHOICE** for E2E tests. The frontend must implement proper semantic HTML and ARIA attributes to support `getByRole()` selectors.
+**Role-based selectors are the FIRST CHOICE** for E2E tests. The frontend must implement proper semantic HTML and ARIA attributes to support `getByRole()` selectors.
 
 ---
 
