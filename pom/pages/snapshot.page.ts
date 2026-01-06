@@ -46,7 +46,10 @@ class SnapshotPage implements IPage {
     this.yourPeersSection = page.getByText('Your peers');
     this.capitalMarketScrollSection = page.getByText('Capital Market Scroll');
     this.companyName = page.locator('div.text-base.font-semibold.uppercase.font-pitchsans');
-    this.mainContent = page.locator('#main-content');
+    
+    // TODO: Frontend should use semantic <main> element instead of div#main-content
+    this.mainContent = page.getByRole('main').or(page.locator('#main-content'));
+    // Use the one-question-outer div that contains the card title
     this.investorLensCard = page.locator('.one-question-outer:has-text("Investor Lens")').first();
     this.peerAnalysisCard = page.locator('.one-question-outer:has-text("Peer Analysis")').first();
     this.sectorAnalysisCard = page.locator('.one-question-outer:has-text("Sector Analysis")').first();
@@ -60,8 +63,9 @@ class SnapshotPage implements IPage {
     // These buttons are in the .embla__controls section below the analysis cards carousel
     
     // Carousel navigation arrows - try multiple selector strategies (semantic > data-testid > structural)
-    this.leftArrowButton = page.locator('button[aria-label*="previous" i], button[aria-label*="prev" i], button[data-testid*="carousel-prev"], button[data-testid*="prev-button"], .embla__controls button').first();
-    this.rightArrowButton = page.locator('button[aria-label*="next" i], button[data-testid*="carousel-next"], button[data-testid*="next-button"], .embla__controls button').last();
+    // TODO: Frontend should add aria-label="Previous" and aria-label="Next" to carousel buttons
+    this.leftArrowButton = page.getByRole('button', { name: /previous|prev/i }).or(page.locator('button[data-testid*="carousel-prev"], .embla__controls button')).first();
+    this.rightArrowButton = page.getByRole('button', { name: /next/i }).or(page.locator('button[data-testid*="carousel-next"], .embla__controls button')).last();
     
     // TODO: Frontend should add data-testid attributes to right side navigation elements:
     // - Markets section: data-testid="markets-section"
@@ -71,20 +75,24 @@ class SnapshotPage implements IPage {
     // - Peer comparison section: data-testid="peer-comparison-section"
     
     // Right side navigation - Markets section
-    this.marketsHeading = page.locator('text=/^MARKETS$/i').first();
-    this.usTab = page.locator('button:has-text("US"), [role="tab"]:has-text("US")').first();
-    this.globalTab = page.locator('button:has-text("GLOBAL"), [role="tab"]:has-text("GLOBAL")').first();
-    this.macroTab = page.locator('button:has-text("MACRO"), [role="tab"]:has-text("MACRO")').first();
+    // TODO: Frontend should ensure MARKETS is a proper heading element (h1-h6)
+    this.marketsHeading = page.getByRole('heading', { name: /^MARKETS$/i }).or(page.locator('text=/^MARKETS$/i')).first();
+    // TODO: Frontend should ensure tabs have proper role="tab" and accessible names
+    this.usTab = page.getByRole('tab', { name: 'US' }).or(page.locator('button:has-text("US")')).first();
+    this.globalTab = page.getByRole('tab', { name: 'GLOBAL' }).or(page.locator('button:has-text("GLOBAL")')).first();
+    this.macroTab = page.getByRole('tab', { name: 'MACRO' }).or(page.locator('button:has-text("MACRO")')).first();
     
     // Peer comparison section - use regex to match dynamic stock ticker
-    this.peerComparisonHeading = page.locator('text=/[A-Z]{1,5}\\s+VS\\s+PEERS/i').first();
+    // TODO: Frontend should ensure this is a proper heading element (h1-h6)
+    this.peerComparisonHeading = page.getByRole('heading', { name: /VS PEERS/i }).or(page.locator('text=/[A-Z]{1,5}\\s+VS\\s+PEERS/i')).first();
     
     // TODO: Frontend should add data-testid attributes to YOUR PEERS elements:
     // - Your Peers section: data-testid="your-peers-section"
     // - Peer news items: data-testid="peer-news-item"
     
     // YOUR PEERS section
-    this.yourPeersHeading = page.locator('text=/^YOUR PEERS$/i').first();
+    // TODO: Frontend should ensure this is a proper heading element (h1-h6)
+    this.yourPeersHeading = page.getByRole('heading', { name: /^YOUR PEERS$/i }).or(page.locator('text=/^YOUR PEERS$/i')).first();
     
     // TODO: Frontend should add data-testid attributes to Market Context chart elements:
     // - Market Context section: data-testid="market-context-section"
@@ -93,7 +101,8 @@ class SnapshotPage implements IPage {
     // - Time period label: data-testid="time-period-label"
     
     // Market Context chart section (TradingView widget - may be in iframe)
-    this.marketContextHeading = page.locator('text=/^MARKET CONTEXT$/i').first();
+    // TODO: Frontend should ensure this is a proper heading element (h1-h6)
+    this.marketContextHeading = page.getByRole('heading', { name: /^MARKET CONTEXT$/i }).or(page.locator('text=/^MARKET CONTEXT$/i')).first();
     // TradingView widget elements - need to access through iframe
     // The widget is embedded in an iframe, so we need to find the iframe first
     const tvIframe = page.frameLocator('iframe[id*="tradingview"], iframe[src*="tradingview"]').first();
@@ -133,13 +142,15 @@ class SnapshotPage implements IPage {
     
     // Stock header elements
     // Stock ticker - matches 1-5 uppercase letters (AAPL, WMT, GOOGL, etc.)
-    this.stockTicker = page.locator('text=/^[A-Z]{1,5}$/').first();
+    // TODO: Frontend should add aria-label="Stock ticker" or data-testid="stock-ticker"
+    this.stockTicker = page.getByLabel(/stock ticker/i).or(page.getByTestId('stock-ticker')).or(page.locator('text=/^[A-Z]{1,5}$/')).first();
     // Company name - in TradingView widget with class tv-widget-chart__title
     // Need to access through iframe like the other TradingView elements
     this.companyName = tvIframe.locator('.tv-widget-chart__title, h2[class*="title"]').first();
     // Greeting message - matches "Good morning/afternoon/evening/night, [Name]"
     // This is outside the iframe, in the main page
-    this.greetingMessage = page.locator('text=/Good (morning|afternoon|evening|night),/i').first();
+    // TODO: Frontend should add aria-label="Greeting message" or data-testid="greeting-message"
+    this.greetingMessage = page.getByLabel(/greeting/i).or(page.getByTestId('greeting-message')).or(page.locator('text=/Good (morning|afternoon|evening|night),/i')).first();
     // Stock summary - the main paragraph with stock information (look for longer paragraphs)
     // This is also outside the iframe
     this.stockSummary = page.locator('p').filter({ hasText: /.{100,}/ }).first();
