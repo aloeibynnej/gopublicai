@@ -2,7 +2,7 @@ import { Page } from '@playwright/test';
 import { IPage } from '../interfaces';
 import { BASE_URL } from '../constants';
 
-export class LoginPage implements IPage {
+export class OAuthLoginPage implements IPage {
   readonly page: Page;
 
   private readonly headingText = 'Welcome to Public.ai';
@@ -16,7 +16,8 @@ export class LoginPage implements IPage {
   }
 
   getUrl(): string {
-    const basePath = '/login';
+    const basePath = 'login';
+
     return `${BASE_URL}${basePath}`;
   }
 
@@ -31,7 +32,6 @@ export class LoginPage implements IPage {
 
   async open(): Promise<void> {
     await this.page.goto(this.getUrl());
-    await this.page.waitForLoadState('networkidle');
     await this.isReady();
   }
 
@@ -40,7 +40,7 @@ export class LoginPage implements IPage {
   }
 
   async fillPassword(password: string): Promise<void> {
-    await this.page.getByPlaceholder(this.passwordPlaceholder).fill(password);
+    await this.page.getByPlaceholder(this.passwordPlaceholder).pressSequentially(password);
   }
 
   async clickLogin(): Promise<void> {

@@ -2,7 +2,7 @@
 import { test as setup } from '@playwright/test';
 import fs from 'fs';
 import { USERNAME, PASSWORD } from '../pom/constants';
-import { LoginPage } from '../pom/pages/login.page';
+import { OAuthLoginPage } from '../pom/pages/oauth-login.page';
 import { DashboardPage } from '../pom/pages/dashboard.page';
 
 const authStatePath = './.auth/authState.json';
@@ -12,10 +12,11 @@ setup('login and save state', async ({ page }) => {
     return;
   }
 
-  const loginPage = new LoginPage(page);
+  const loginPage = new OAuthLoginPage(page);
   const dashboardPage = new DashboardPage(page);
 
   await loginPage.open();
+  await loginPage.isReady();
   await loginPage.login(USERNAME, PASSWORD);
 
   await dashboardPage.isReady();

@@ -29,7 +29,7 @@ export default defineConfig({
     baseURL: 'https://staging.gopublic.ai/',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
 
     /* Capture screenshot after each test */
     screenshot: 'only-on-failure',
@@ -45,6 +45,7 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], storageState: './.auth/authState.json' },
       dependencies: ['setup'],
+      grepInvert: /@mobile/,
     },
 
     // {
@@ -58,10 +59,12 @@ export default defineConfig({
     // },
 
     /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'], storageState: './.auth/authState.json' },
+      dependencies: ['setup'],
+      grep: /@mobile/,
+    },
     // {
     //   name: 'Mobile Safari',
     //   use: { ...devices['iPhone 12'] },
