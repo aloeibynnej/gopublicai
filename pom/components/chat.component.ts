@@ -15,6 +15,7 @@ export class ChatComponent {
     private readonly page: Page,
     rootSelector: string = '[role="dialog"]'
   ) {
+    // Using role="dialog" for semantic HTML - chat overlay should have proper ARIA role
     this.container = this.page.locator(rootSelector);
     this.newChatButton = this.page.getByRole('button', { name: 'Start new chat' });
     this.chatInput = this.page.getByPlaceholder('Ask Charlie...');
