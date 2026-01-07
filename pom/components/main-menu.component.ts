@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { TickerSwitcherComponent } from './ticker-switcher.component';
 
 export class MainMenuComponent {
   private readonly container: Locator;
@@ -9,6 +10,10 @@ export class MainMenuComponent {
   private readonly settingsLink: Locator;
   private readonly logoLink: Locator;
   private readonly snapshotLink: Locator;
+  private readonly changeTickerButton: Locator;
+  private readonly changeTickerButtonMobile: Locator;
+
+  readonly tickerSwitcher: TickerSwitcherComponent;
 
   constructor(private readonly page: Page) {
     this.container = this.page.locator('nav');
@@ -19,6 +24,14 @@ export class MainMenuComponent {
     this.statsLink = this.page.getByRole('link', { name: 'Stats' });
     this.settingsLink = this.page.getByRole('link', { name: 'Settings' });
     this.snapshotLink = this.page.getByRole('link', { name: 'Snapshot' });
+    this.changeTickerButton = this.page.getByRole('button', {
+      name: /change/i,
+    });
+    this.changeTickerButtonMobile = this.page
+      .getByRole('button', { name: /change/i })
+      .or(this.page.locator('[aria-label*="change ticker" i]'));
+
+    this.tickerSwitcher = new TickerSwitcherComponent(page);
   }
 
   async isVisible(): Promise<boolean> {
@@ -80,6 +93,20 @@ export class MainMenuComponent {
   async isSettingsLinkActive(): Promise<boolean> {
     const classList = await this.settingsLink.getAttribute('class');
     return classList?.includes('active') || classList?.includes('bg-') || false;
+  }
+
+  async clickTickerSwitcher(): Promise<void> {
+    await this.snapshotLink.click();
+    await this.changeTickerButton.click();
+  }
+
+  async clickTickerSwitcherMobile(): Promise<void> {
+    await this.changeTickerButtonMobile.click();
+  }
+
+  async selectTicker(ticker: string): Promise<void> {
+    await this.snapshotLink.click();
+    await this.tickerSwitcher.selectTickerByText(ticker);
   }
 
   async getActiveMenuItem(): Promise<string | null> {

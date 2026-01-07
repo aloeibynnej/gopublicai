@@ -24,11 +24,14 @@ export class LoginPage implements IPage {
     await this.page.getByRole('heading', { name: this.headingText }).waitFor({ state: 'visible' });
     await this.page.getByPlaceholder(this.emailPlaceholder).waitFor({ state: 'visible' });
     await this.page.getByPlaceholder(this.passwordPlaceholder).waitFor({ state: 'visible' });
-    await this.page.getByRole('button', { name: this.loginButtonText }).waitFor({ state: 'visible' });
+    await this.page
+      .getByRole('button', { name: this.loginButtonText })
+      .waitFor({ state: 'visible' });
   }
 
   async open(): Promise<void> {
     await this.page.goto(this.getUrl());
+    await this.page.waitForLoadState('networkidle');
     await this.isReady();
   }
 

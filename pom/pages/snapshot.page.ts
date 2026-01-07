@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { IPage } from '../interfaces';
-import { ChatComponent, MainMenuComponent } from '../components';
+import { ChatComponent, MainMenuComponent, TickerSwitcherComponent } from '../components';
 import { BASE_URL } from '../constants';
 
 class SnapshotPage implements IPage {
@@ -8,12 +8,14 @@ class SnapshotPage implements IPage {
   readonly marketContextSection: Locator;
   readonly yourPeersSection: Locator;
   readonly capitalMarketScrollSection: Locator;
+  readonly companyName: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.marketContextSection = page.getByText('Market Context');
     this.yourPeersSection = page.getByText('Your peers');
     this.capitalMarketScrollSection = page.getByText('Capital Market Scroll');
+    this.companyName = page.locator('div.text-base.font-semibold.uppercase.font-pitchsans');
   }
   getUrl(id?: string): string {
     return id ? `${BASE_URL}/snapshot/${id}` : `${BASE_URL}/snapshot`;
@@ -34,11 +36,13 @@ class SnapshotPage implements IPage {
 export class SnapshotDesktopPage extends SnapshotPage {
   readonly chat: ChatComponent;
   readonly mainMenu: MainMenuComponent;
+  readonly tickerSwitcher: TickerSwitcherComponent;
 
   constructor(page: Page) {
     super(page);
     this.chat = new ChatComponent(page);
     this.mainMenu = new MainMenuComponent(page);
+    this.tickerSwitcher = new TickerSwitcherComponent(page);
   }
 
   async isMarketContextVisible(): Promise<boolean> {
@@ -49,6 +53,11 @@ export class SnapshotDesktopPage extends SnapshotPage {
   async isYourPeersVisible(): Promise<boolean> {
     await this.yourPeersSection.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
     return await this.yourPeersSection.isVisible();
+  }
+
+  async isCompanyNameVisible(): Promise<boolean> {
+    await this.companyName.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
+    return await this.companyName.isVisible();
   }
 
   async isOnSnapshotPage(): Promise<boolean> {
@@ -74,6 +83,7 @@ export class SnapshotMobilePage extends SnapshotPage {
   private readonly percentVolumeValue: Locator;
 
   readonly mainMenu: MainMenuComponent;
+  readonly tickerSwitcher: TickerSwitcherComponent;
 
   constructor(page: Page) {
     super(page);
@@ -103,6 +113,7 @@ export class SnapshotMobilePage extends SnapshotPage {
       .locator('div.tracking-\\[-1\\%\\]');
 
     this.mainMenu = new MainMenuComponent(page);
+    this.tickerSwitcher = new TickerSwitcherComponent(page);
   }
 
   async clickMenuButton(): Promise<void> {
@@ -141,6 +152,11 @@ export class SnapshotMobilePage extends SnapshotPage {
   async isYourPeersVisible(): Promise<boolean> {
     await this.yourPeersSection.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
     return await this.yourPeersSection.isVisible();
+  }
+
+  async isCompanyNameVisible(): Promise<boolean> {
+    await this.companyName.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
+    return await this.companyName.isVisible();
   }
 
   async isOnSnapshotPage(): Promise<boolean> {
