@@ -3,3 +3,4 @@ export * from './login.page';
 export * from './dashboard.page';
 export * from './oauth-login.page';
 export * from './health-monitor.page';
+export * from './snapshot.page';

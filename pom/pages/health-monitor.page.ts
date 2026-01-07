@@ -2,10 +2,33 @@ import { Page, Locator } from '@playwright/test';
 import { IPage } from '../interfaces';
 import { ChatComponent } from '../components';
 import { BASE_URL } from '../constants';
+import { MainMenuComponent } from '../components';
 
-export class HealthMonitorPage implements IPage {
+class HealthMonitorPage implements IPage {
   readonly page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+
+  getUrl(): string {
+    return `${BASE_URL}/health-monitor`;
+  }
+
+  async isReady(): Promise<void> {
+    await this.page.waitForLoadState('networkidle');
+    await this.page.getByRole('heading', { name: 'Stock Technicals' }).isVisible();
+  }
+
+  async open(): Promise<void> {
+    await this.page.goto(this.getUrl());
+    await this.isReady();
+  }
+}
+
+export class HealthMonitorDesktopPage extends HealthMonitorPage {
   readonly chat: ChatComponent;
+  readonly mainMenu: MainMenuComponent;
 
   private readonly pageHeading: Locator;
   private readonly rsiCard: Locator;
@@ -15,8 +38,10 @@ export class HealthMonitorPage implements IPage {
   private readonly mainContent: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
+
     this.chat = new ChatComponent(page);
+    this.mainMenu = new MainMenuComponent(page);
 
     this.pageHeading = page.getByRole('heading', { name: /health monitor/i });
     this.rsiCard = page.locator('text=RSI').locator('..').locator('..');
@@ -24,20 +49,6 @@ export class HealthMonitorPage implements IPage {
     this.shortInterestCard = page.locator('text=SHORT INTEREST').locator('..').locator('..');
     this.seeMoreButtons = page.getByRole('button', { name: /see more/i });
     this.mainContent = page.locator('#main-content');
-  }
-
-  getUrl(): string {
-    return `${BASE_URL}/health-monitor`;
-  }
-
-  async isReady(): Promise<void> {
-    await this.page.waitForLoadState('networkidle');
-    await this.mainContent.isVisible();
-  }
-
-  async open(): Promise<void> {
-    await this.page.goto(this.getUrl());
-    await this.isReady();
   }
 
   async getRSIValue(): Promise<string> {
@@ -84,5 +95,68 @@ export class HealthMonitorPage implements IPage {
 
   async startNewChat(): Promise<void> {
     await this.chat.clickNewChat();
+  }
+}
+
+export class HealthMonitorMobilePage extends HealthMonitorPage {
+  private readonly greetingMessage: Locator;
+  private readonly stockTickerHeader: Locator;
+  private readonly chatHistoryBackdrop: Locator;
+  private readonly chatHistoryItems: Locator;
+  private readonly screenSizeIndicator: Locator;
+  private readonly menuButton: Locator;
+
+  readonly mainMenu: MainMenuComponent;
+
+  constructor(page: Page) {
+    super(page);
+
+    this.greetingMessage = page.locator('div.relative.text-2xl').first();
+    this.stockTickerHeader = page.getByRole('button', { name: /STOCK TICKER GOALS/i });
+    this.chatHistoryBackdrop = page.locator('[aria-label="Chat history backdrop"]');
+    this.chatHistoryItems = page.locator('[role="button"][aria-label*="Chat from"]');
+    this.screenSizeIndicator = page.locator('div.fixed.bottom-1.left-1.z-50');
+    this.menuButton = page.getByRole('banner').getByRole('img');
+
+    this.mainMenu = new MainMenuComponent(page);
+  }
+
+  async clickMenuButton(): Promise<void> {
+    await this.menuButton.click();
+  }
+
+  async getGreetingText(): Promise<string> {
+    return (await this.greetingMessage.textContent()) || '';
+  }
+
+  async isStockTickerHeaderVisible(): Promise<boolean> {
+    return await this.stockTickerHeader.isVisible();
+  }
+
+  async clickStockTickerHeader(): Promise<void> {
+    await this.stockTickerHeader.click();
+  }
+
+  async getChatHistoryItemsCount(): Promise<number> {
+    return await this.chatHistoryItems.count();
+  }
+
+  async getChatHistoryItemText(index: number): Promise<string> {
+    const item = this.chatHistoryItems.nth(index);
+    const textElement = item.locator('span.text-xs.text-white');
+    return (await textElement.textContent()) || '';
+  }
+
+  async clickChatHistoryItem(index: number): Promise<void> {
+    await this.chatHistoryItems.nth(index).click();
+  }
+
+  async isChatHistoryBackdropVisible(): Promise<boolean> {
+    return await this.chatHistoryBackdrop.isVisible();
+  }
+
+  async getCurrentScreenSize(): Promise<string> {
+    const visibleSize = await this.screenSizeIndicator.locator('div:visible').textContent();
+    return visibleSize || '';
   }
 }

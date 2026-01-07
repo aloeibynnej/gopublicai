@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { HealthMonitorPage } from '../pom/pages';
+import { HealthMonitorDesktopPage } from '../pom/pages';
 
 test.setTimeout(60_000);
 
 test('chat window can be opened @desktop', async ({ page }) => {
   const unixTimestamp = Date.now();
-  const healthMonitorPage = new HealthMonitorPage(page);
+  const healthMonitorPage = new HealthMonitorDesktopPage(page);
 
   await healthMonitorPage.open();
   await healthMonitorPage.isReady();
