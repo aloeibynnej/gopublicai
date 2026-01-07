@@ -81,7 +81,29 @@
 
 ### **MEDIUM PRIORITY - Improve Test Reliability**
 
-#### 5. Section Headings
+#### 5. Chat Trigger Button
+**Current:** No consistent selector (varies by implementation)
+**Required:** Add `data-testid` or proper `aria-label` for deterministic selection
+```html
+<!-- Option 1: data-testid (RECOMMENDED) -->
+<button data-testid="chat-trigger-button" aria-label="Open chat">
+  Charlie
+</button>
+
+<!-- Option 2: Consistent aria-label -->
+<button aria-label="Open Charlie chat assistant">
+  Charlie
+</button>
+```
+**E2E Selector:** 
+- `page.getByTestId('chat-trigger-button')` (preferred)
+- `page.getByRole('button', { name: 'Open chat' })`
+
+**Why this matters:** Currently tests must try multiple fallback selectors, making behavior non-deterministic. A single reliable selector improves test stability and maintainability.
+
+---
+
+#### 6. Section Headings
 **Current:** May be `<div>` or `<span>` with text
 **Required:** Use proper heading elements (`<h1>` - `<h6>`)
 ```html
@@ -196,6 +218,7 @@ page.getByTestId('user-profile-card')
 - [ ] Add `aria-label="Previous"` and `aria-label="Next"` to carousel buttons
 - [ ] Wrap analysis cards in `<article>` with `aria-label`
 - [ ] Ensure Markets tabs have `role="tab"`
+- [ ] Add `data-testid="chat-trigger-button"` to chat trigger button for deterministic selection
 - [ ] Convert section titles to proper heading elements (`<h1>` - `<h6>`)
 - [ ] Add `aria-label="Stock ticker"` to ticker element
 - [ ] Add `aria-label="Greeting message"` to greeting paragraph
