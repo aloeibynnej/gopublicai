@@ -15,13 +15,14 @@ export class ChatComponent {
     private readonly page: Page,
     rootSelector: string = '[role="dialog"]'
   ) {
+    // Using role="dialog" for semantic HTML - chat overlay should have proper ARIA role
     this.container = this.page.locator(rootSelector);
     this.newChatButton = this.page.getByRole('button', { name: 'Start new chat' });
     this.chatInput = this.page.getByPlaceholder('Ask Charlie...');
     this.sendButton = this.page.locator('button[type="submit"]');
     this.chatHistoryItems = this.page.locator('[role="button"][aria-label^="Chat from"]');
     this.closeButton = this.page.getByRole('button', { name: 'Close chat' });
-    this.reasoningText = this.page.getByRole('button', { name: 'Reasoning' });
+    this.reasoningText = this.page.getByText('Reasoning').first();
     this.chatHistoryButton = this.page.getByRole('button', { name: 'Open chat history' });
     this.chatResponseText = this.page.getByText('Good morning, Michal. Your').first();
   }
