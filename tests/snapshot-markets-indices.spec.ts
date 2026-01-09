@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { SnapshotPage } from '../pom/pages/snapshot.page';
+import { SnapshotDesktopPage } from '../pom/pages';
 
 // WIP: Test blocked by bug BUILD-1333
 // Bug: MARKETS section tabs show no data when clicked
@@ -10,7 +10,7 @@ test.describe('Snapshot Markets - Index Data Display', () => {
   test.setTimeout(60_000);
 
   test.skip('should display market indices for US, GLOBAL, and MACRO tabs @desktop', async ({ page }) => {
-    const snapshotPage = new SnapshotPage(page);
+    const snapshotPage = new SnapshotDesktopPage(page);
     
     console.log('\n=== Testing MARKETS section index data ===');
 

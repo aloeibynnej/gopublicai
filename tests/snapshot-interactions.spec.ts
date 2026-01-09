@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { SnapshotPage } from '../pom/pages/snapshot.page';
+import { SnapshotDesktopPage } from '../pom/pages';
 
 test.describe('Snapshot Page - Interactions', () => {
   test.setTimeout(90_000);
@@ -7,7 +7,7 @@ test.describe('Snapshot Page - Interactions', () => {
   test('should handle navigation interactions @desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1728, height: 1117 });
     
-    const snapshotPage = new SnapshotPage(page);
+    const snapshotPage = new SnapshotDesktopPage(page);
     
     console.log('\n=== Testing snapshot page navigation interactions ===');
 

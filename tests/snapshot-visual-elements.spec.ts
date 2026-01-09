@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { SnapshotPage } from '../pom/pages/snapshot.page';
+import { SnapshotDesktopPage } from '../pom/pages';
 
 test.describe('Snapshot Page - Visual Elements', () => {
   test.setTimeout(60_000);
 
   test('should display all visual elements on page load @desktop', async ({ page }) => {
-    const snapshotPage = new SnapshotPage(page);
+    const snapshotPage = new SnapshotDesktopPage(page);
     
     console.log('\n=== Testing snapshot page visual elements ===');
 

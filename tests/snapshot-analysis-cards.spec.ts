@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { SnapshotPage } from '../pom/pages';
+import { SnapshotDesktopPage } from '../pom/pages';
 
 test.describe('Snapshot Analysis Cards', () => {
   test.setTimeout(300_000); // 5 minutes for 4 cards with AI response waits
@@ -9,7 +9,7 @@ test.describe('Snapshot Analysis Cards', () => {
   test.skip('should click all 4 analysis cards and receive AI responses @desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1728, height: 1117 });
     
-    const snapshotPage = new SnapshotPage(page);
+    const snapshotPage = new SnapshotDesktopPage(page);
     await snapshotPage.open();
     await snapshotPage.isReady();
 

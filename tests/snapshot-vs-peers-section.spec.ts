@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { SnapshotPage } from '../pom/pages/snapshot.page';
+import { SnapshotDesktopPage } from '../pom/pages';
 
 test.describe('Snapshot VS PEERS Section', () => {
   test.setTimeout(60_000);
 
   test('should display peer comparison data with dynamic peer companies @desktop', async ({ page }) => {
-    const snapshotPage = new SnapshotPage(page);
+    const snapshotPage = new SnapshotDesktopPage(page);
     
     console.log('\n=== Testing VS PEERS section ===');
 

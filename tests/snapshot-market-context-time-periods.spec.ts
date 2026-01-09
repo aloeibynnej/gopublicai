@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { SnapshotPage } from '../pom/pages/snapshot.page';
+import { SnapshotDesktopPage } from '../pom/pages';
 
 test.describe('Snapshot Market Context - Time Period Switching', () => {
   test.setTimeout(90_000);
 
   test('should switch time periods and update percentage text @desktop', async ({ page }) => {
-    const snapshotPage = new SnapshotPage(page);
+    const snapshotPage = new SnapshotDesktopPage(page);
     
     console.log('\n=== Testing Market Context time period switching ===');
 

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { SnapshotPage } from '../pom/pages';
+import { SnapshotDesktopPage } from '../pom/pages';
 
 test.describe('Snapshot Delete Chat', () => {
   test.setTimeout(120_000); // 2 minutes for chat operations and deletion
@@ -9,7 +9,7 @@ test.describe('Snapshot Delete Chat', () => {
   test.skip('should delete a chat conversation from history @desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1728, height: 1117 });
     
-    const snapshotPage = new SnapshotPage(page);
+    const snapshotPage = new SnapshotDesktopPage(page);
     await snapshotPage.open();
     await snapshotPage.isReady();
 

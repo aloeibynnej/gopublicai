@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { SnapshotPage } from '../pom/pages/snapshot.page';
+import { SnapshotDesktopPage } from '../pom/pages';
 
 test.describe('Snapshot Your Peers Section', () => {
   test.setTimeout(60_000);
 
   test('should display YOUR PEERS section and open chat with clicked news item text @desktop', async ({ page }) => {
-    const snapshotPage = new SnapshotPage(page);
+    const snapshotPage = new SnapshotDesktopPage(page);
     
     console.log('\n=== Testing YOUR PEERS section on snapshot page ===');
 

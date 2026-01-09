@@ -27,7 +27,6 @@ class SnapshotPage implements IPage {
   readonly usdLabel: Locator;
   readonly pastMonthLabel: Locator;
   readonly stockTicker: Locator;
-  readonly companyName: Locator;
   readonly greetingMessage: Locator;
   readonly stockSummary: Locator;
   readonly timePeriod1DButton: Locator;
@@ -157,13 +156,16 @@ class SnapshotPage implements IPage {
   }
   
   getUrl(id?: string): string {
-    return id ? `${BASE_URL}/snapshot/${id}` : `${BASE_URL}/snapshot`;
+    return id ? `${BASE_URL}/snapshot/${id}` : BASE_URL;
   }
 
   async isReady(): Promise<void> {
     await this.marketContextSection.waitFor({ state: 'visible' });
     await this.yourPeersSection.waitFor({ state: 'visible' });
     await this.capitalMarketScrollSection.waitFor({ state: 'visible' });
+    // Wait for analysis cards to load (they load dynamically after initial page load)
+    await this.page.waitForTimeout(8000);
+    await this.investorLensCard.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
   }
 
   async open(id?: string): Promise<void> {
