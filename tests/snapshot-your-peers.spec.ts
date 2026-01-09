@@ -45,7 +45,7 @@ test.describe('Snapshot Your Peers Section', () => {
 
     // Close chat for next test
     await snapshotPage.chat.closeChat();
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000); // Wait longer for chat to fully close
     console.log('✓ Closed chat');
 
     console.log('\n=== Testing second peer news item (if available) ===');
@@ -57,6 +57,9 @@ test.describe('Snapshot Your Peers Section', () => {
       
       const secondCapturedText = await snapshotPage.clickPeerNewsItem(1);
       console.log(`✓ Clicked second peer news item`);
+      
+      // Wait longer for chat to open with new question
+      await page.waitForTimeout(1000);
       
       const secondChatQuestionMatches = await snapshotPage.verifyChatQuestionMatches(secondCapturedText!);
       expect(secondChatQuestionMatches).toBe(true);
