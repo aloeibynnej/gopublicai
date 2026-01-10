@@ -29,13 +29,13 @@ export default defineConfig({
     baseURL: 'https://publicai-git-feature-graphql-integration-public-ai.vercel.app/',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'retain-on-failure',
+    trace: 'on',
 
     /* Capture screenshot after each test */
-    screenshot: 'only-on-failure',
+    screenshot: 'on',
 
     /* Record video only when retrying a test */
-    video: 'on-first-retry',
+    video: 'on',
   },
 
   /* Configure projects for major browsers */

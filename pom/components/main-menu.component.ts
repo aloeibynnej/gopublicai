@@ -16,7 +16,7 @@ export class MainMenuComponent {
   readonly tickerSwitcher: TickerSwitcherComponent;
 
   constructor(private readonly page: Page) {
-    this.container = this.page.locator('nav');
+    this.container = this.page.locator('nav').first();
     this.logoLink = this.page.getByRole('link', { name: 'PublicAI' });
     this.homeLink = this.page.getByRole('link', { name: 'Home' });
     this.chatLink = this.page.getByRole('link', { name: 'Chat' });
