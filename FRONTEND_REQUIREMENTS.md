@@ -121,7 +121,7 @@
 
 ---
 
-#### 6. Stock Ticker
+#### 7. Stock Ticker
 **Current:** Plain text element
 **Required:** Add `aria-label` or wrap in semantic element
 ```html
@@ -135,7 +135,7 @@
 
 ---
 
-#### 7. Greeting Message
+#### 8. Greeting Message
 **Current:** Plain text paragraph
 **Required:** Add `aria-label` for identification
 ```html
@@ -147,7 +147,7 @@
 
 ### **LOW PRIORITY - Nice to Have**
 
-#### 8. Time Period Buttons (TradingView iframe)
+#### 9. Time Period Buttons (TradingView iframe)
 **Note:** These are in TradingView iframe - limited control
 **If possible:** Ensure buttons have accessible names
 ```html
