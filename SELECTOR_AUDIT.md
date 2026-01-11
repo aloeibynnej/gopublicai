@@ -1,14 +1,37 @@
 # E2E Selector Audit - Role-Based Pattern Required
 
+**Last Updated:** January 9, 2026  
+**Status:** 🟡 Partial Deployment (50% Complete)
+
 ## Overview
 All page objects must use role-based selectors (getByRole, getByLabel, getByText) as the primary approach. Class-based and CSS selectors should only be used as a last resort when semantic HTML is not available.
 
-## Priority: Add data-testid Attributes in Frontend
+## ✅ Deployed Changes (January 2026)
 
-### snapshot.page.ts - NEEDS UPDATES
+### Main Content Area - COMPLETED ✅
+**Status:** Deployed to test environment  
+**Change:** Now using semantic `<main>` element  
+**E2E Selector:** `page.getByRole('main').or(page.locator('#main-content'))`
 
-#### Analysis Cards (Lines 46-51)
-**Current:** Using `.one-question-outer` class with `:has-text()`
+### Markets Tabs - COMPLETED ✅
+**Status:** Deployed to test environment  
+**Change:** Tabs now have proper `role="tab"` attribute  
+**E2E Selectors:**
+```typescript
+page.getByRole('tab', { name: 'US' })
+page.getByRole('tab', { name: 'GLOBAL' })
+page.getByRole('tab', { name: 'MACRO' })
+```
+
+---
+
+## ❌ Remaining Work - Priority: Add Remaining Accessibility Attributes
+
+### snapshot.page.ts - PARTIAL UPDATES
+
+#### Analysis Cards (Lines 51-59)
+**Status:** ❌ NOT YET DEPLOYED  
+**Current:** Using `.one-question-outer` class with `:has-text()` fallback
 ```typescript
 this.investorLensCard = page.locator('.one-question-outer:has-text("Investor Lens")').first();
 this.peerAnalysisCard = page.locator('.one-question-outer:has-text("Peer Analysis")').first();
@@ -32,8 +55,9 @@ this.macroCard = page.locator('.one-question-outer').filter({ hasText: 'MACRO' }
   ```
   **Frontend TODO:** Add `data-testid="analysis-card-investor-lens"` etc.
 
-#### Carousel Navigation (Lines 59-60)
-**Current:** Complex selector with multiple fallbacks
+#### Carousel Navigation (Lines 66-70)
+**Status:** ❌ NOT YET DEPLOYED  
+**Current:** Using `.embla__controls button` fallback
 ```typescript
 this.leftArrowButton = page.locator('button[aria-label*="previous" i], button[aria-label*="prev" i], button[data-testid*="carousel-prev"], button[data-testid*="prev-button"], .embla__controls button').first();
 this.rightArrowButton = page.locator('button[aria-label*="next" i], button[data-testid*="carousel-next"], button[data-testid*="next-button"], .embla__controls button').last();
@@ -46,21 +70,14 @@ this.rightArrowButton = page.getByRole('button', { name: 'Next' });
 ```
 **Frontend TODO:** Add `aria-label="Previous"` and `aria-label="Next"` to carousel buttons
 
-#### Markets Tabs (Lines 71-73)
-**Current:** Mixed button/role selector
-```typescript
-this.usTab = page.locator('button:has-text("US"), [role="tab"]:has-text("US")').first();
-this.globalTab = page.locator('button:has-text("GLOBAL"), [role="tab"]:has-text("GLOBAL")').first();
-this.macroTab = page.locator('button:has-text("MACRO"), [role="tab"]:has-text("MACRO")').first();
-```
-
-**Recommended:**
+#### Markets Tabs (Lines 82-85)
+**Status:** ✅ DEPLOYED  
+**Current:** Using definitive `role="tab"` selectors
 ```typescript
 this.usTab = page.getByRole('tab', { name: 'US' });
 this.globalTab = page.getByRole('tab', { name: 'GLOBAL' });
 this.macroTab = page.getByRole('tab', { name: 'MACRO' });
 ```
-**Frontend TODO:** Ensure tabs have proper `role="tab"` and accessible names
 
 #### Headings (Lines 70, 76, 83, 92)
 **Current:** Using text locators with regex
@@ -103,17 +120,12 @@ this.timePeriod1MButton = page.getByRole('button', { name: '1M' });
 ```
 **Frontend TODO:** Ensure buttons have proper accessible names
 
-#### Main Content (Line 44)
-**Current:** ID selector
-```typescript
-this.mainContent = page.locator('#main-content');
-```
-
-**Recommended:**
+#### Main Content (Line 49-50)
+**Status:** ✅ DEPLOYED  
+**Current:** Using definitive semantic `<main>` selector
 ```typescript
 this.mainContent = page.getByRole('main');
 ```
-**Frontend TODO:** Use semantic `<main>` element instead of `<div id="main-content">`
 
 ---
 

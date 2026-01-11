@@ -140,4 +140,5 @@ vite.config.ts.timestamp-*
 
 .auth
 playwright-report
-test-results
+test-resultstests/check-accessibility.spec.ts
+test-results/

@@ -214,15 +214,22 @@ page.getByTestId('user-profile-card')
 
 ## 📝 **Implementation Checklist**
 
-- [ ] Replace `<div id="main-content">` with `<main>`
+**Last Updated:** January 9, 2026
+
+### ✅ Completed (Deployed)
+- [x] Replace `<div id="main-content">` with `<main>` ✅ **DEPLOYED**
+- [x] Ensure Markets tabs have `role="tab"` ✅ **DEPLOYED**
+
+### ❌ Remaining Work
 - [ ] Add `aria-label="Previous"` and `aria-label="Next"` to carousel buttons
 - [ ] Wrap analysis cards in `<article>` with `aria-label`
-- [ ] Ensure Markets tabs have `role="tab"`
 - [ ] Add `data-testid="chat-trigger-button"` to chat trigger button for deterministic selection
 - [ ] Convert section titles to proper heading elements (`<h1>` - `<h6>`)
 - [ ] Add `aria-label="Stock ticker"` to ticker element
 - [ ] Add `aria-label="Greeting message"` to greeting paragraph
 - [ ] Review all interactive elements for proper ARIA roles
+
+**Progress:** 2/9 items completed (22%)
 
 ---
 
