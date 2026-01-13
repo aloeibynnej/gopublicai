@@ -2,8 +2,6 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pom/pages';
 
 test.describe('Login - Negative Test Cases', () => {
-  test.setTimeout(30_000);
-
   // Use unauthenticated context - no storageState
   test.use({ storageState: { cookies: [], origins: [] } });
 
