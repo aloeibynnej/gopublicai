@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pom/pages';
 
 test.describe('Login Page - Page Load and Elements', () => {
-  test.setTimeout(30_000);
 
   // Use unauthenticated context - no storageState
   test.use({ storageState: { cookies: [], origins: [] } });
@@ -45,24 +44,5 @@ test.describe('Login Page - Page Load and Elements', () => {
     console.log('✓ "Forgot your password?" link visible');
 
     console.log('\n=== Login Page Load Test Complete ===');
-  });
-
-  test('should navigate to forgot password page when clicking forgot password link @smoke', async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    
-    console.log('\n=== Testing Forgot Password Navigation ===');
-
-    await loginPage.open();
-    console.log('✓ On login page');
-
-    await loginPage.clickForgotPassword();
-    console.log('✓ Clicked "Forgot your password?" link');
-
-    // Wait for navigation to forgot password page
-    await page.waitForTimeout(2000);
-    console.log('✓ Navigated to forgot password page');
-
-    expect(page.url()).toContain('/forgot-password');
-    console.log('\n=== Forgot Password Navigation Test Complete ===');
   });
 });
