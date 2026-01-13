@@ -8,41 +8,24 @@ test.describe('Login Page - Page Load and Elements', () => {
 
   test('should load login page and display all form elements @smoke', async ({ page }) => {
     const loginPage = new LoginPage(page);
-    
-    console.log('\n=== Testing Login Page Load ===');
 
     await loginPage.open();
-    console.log('✓ Navigated to login page');
 
-    // Verify URL
     expect(page.url()).toContain('/login');
-    console.log('✓ URL is /login');
 
-    // Verify heading
     const heading = page.getByRole('heading', { name: 'Welcome to Public.ai' });
     await expect(heading).toBeVisible();
-    console.log('✓ Page heading: "Welcome to Public.ai"');
 
-    // Verify email input
     const emailInput = page.getByPlaceholder('Email');
     await expect(emailInput).toBeVisible();
-    console.log('✓ Email input field visible');
 
-    // Verify password input
     const passwordInput = page.getByPlaceholder('Password');
     await expect(passwordInput).toBeVisible();
-    console.log('✓ Password input field visible');
 
-    // Verify login button
     const loginButton = page.getByRole('button', { name: 'LOG IN' });
     await expect(loginButton).toBeVisible();
-    console.log('✓ "LOG IN" button visible');
 
-    // Verify forgot password link
     const forgotPasswordLink = page.getByRole('link', { name: 'Forgot your password?' });
     await expect(forgotPasswordLink).toBeVisible();
-    console.log('✓ "Forgot your password?" link visible');
-
-    console.log('\n=== Login Page Load Test Complete ===');
   });
 });
