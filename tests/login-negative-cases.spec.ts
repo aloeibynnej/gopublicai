@@ -79,7 +79,7 @@ test.describe('Login - Negative Test Cases', () => {
     expect(page.url()).toContain('/login');
   });
 
-  test('should handle email with leading space (fails to login) @smoke', async ({ page }) => {
+  test('should handle email with leading space (trimmed automatically) @smoke', async ({ page }) => {
     const loginPage = new LoginPage(page);
 
     await loginPage.open();
@@ -87,6 +87,10 @@ test.describe('Login - Negative Test Cases', () => {
     expect(page.url()).toContain('/login');
 
     await loginPage.fillEmail(' test@publicai.com');
+
+    const emailInput = page.getByPlaceholder('Email');
+    const actualValue = await emailInput.inputValue();
+    expect(actualValue).toBe('test@publicai.com');
 
     await loginPage.fillPassword('TestPassword123!');
 
@@ -97,7 +101,7 @@ test.describe('Login - Negative Test Cases', () => {
     expect(page.url()).toContain('/login');
   });
 
-  test('should handle email with trailing space (fails to login) @smoke', async ({ page }) => {
+  test('should handle email with trailing space (trimmed automatically) @smoke', async ({ page }) => {
     const loginPage = new LoginPage(page);
 
     await loginPage.open();
@@ -105,6 +109,10 @@ test.describe('Login - Negative Test Cases', () => {
     expect(page.url()).toContain('/login');
 
     await loginPage.fillEmail('test@publicai.com ');
+
+    const emailInput = page.getByPlaceholder('Email');
+    const actualValue = await emailInput.inputValue();
+    expect(actualValue).toBe('test@publicai.com');
 
     await loginPage.fillPassword('TestPassword123!');
 
