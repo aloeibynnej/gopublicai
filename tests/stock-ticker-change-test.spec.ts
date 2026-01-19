@@ -2,11 +2,12 @@ import { test, expect } from '@playwright/test';
 import { SnapshotDesktopPage, SnapshotMobilePage } from '../pom/pages';
 
 test.describe('stock ticker change module @desktop', () => {
-  test.setTimeout(60_000); // 60 seconds for ticker switching tests
-  
+  test.setTimeout(60_000);
+
   test('should render ticker switcher on Snapshot page', async ({ page }) => {
     const snapshotPage = new SnapshotDesktopPage(page);
     await snapshotPage.open();
+    await snapshotPage.isReady();
     await snapshotPage.mainMenu.clickTickerSwitcher();
 
     const ticketSwitcherComponent = snapshotPage.mainMenu.tickerSwitcher;
@@ -17,27 +18,24 @@ test.describe('stock ticker change module @desktop', () => {
   test('should allow user to interact with ticker switcher', async ({ page }) => {
     const snapshotPage = new SnapshotDesktopPage(page);
     await snapshotPage.open();
-    
+    await snapshotPage.isReady();
     const ticketSwitcherComponent = snapshotPage.mainMenu.tickerSwitcher;
 
-    // Test first ticker change: PLTR
-    await snapshotPage.mainMenu.waitForComponent(); // Wait for side nav to be ready
+    await snapshotPage.mainMenu.waitForComponent();
     await snapshotPage.mainMenu.clickTickerSwitcher();
     await ticketSwitcherComponent.searchTicker('PLTR');
     await expect(page.getByText('Changing Company...')).toBeVisible();
     await snapshotPage.isReady();
     expect(await snapshotPage.isCompanyNameVisible()).toBeTruthy();
 
-    // Test second ticker change: NVDA
-    await snapshotPage.mainMenu.waitForComponent(); // Wait for side nav to be ready after reload
+    await snapshotPage.mainMenu.waitForComponent();
     await snapshotPage.mainMenu.clickTickerSwitcher();
     await ticketSwitcherComponent.searchTicker('NVDA');
     await expect(page.getByText('Changing Company...')).toBeVisible();
     await snapshotPage.isReady();
     expect(await snapshotPage.isCompanyNameVisible()).toBeTruthy();
 
-    // Test third ticker change: TSLA
-    await snapshotPage.mainMenu.waitForComponent(); // Wait for side nav to be ready after reload
+    await snapshotPage.mainMenu.waitForComponent();
     await snapshotPage.mainMenu.clickTickerSwitcher();
     await ticketSwitcherComponent.searchTicker('TSLA');
     await expect(page.getByText('Changing Company...')).toBeVisible();
@@ -47,12 +45,12 @@ test.describe('stock ticker change module @desktop', () => {
 });
 
 test.describe('stock ticker change module @mobile', () => {
-  test.setTimeout(60_000); // 60 seconds for ticker switching tests
-  
+  test.setTimeout(60_000);
+
   test('should render ticker switcher on Snapshot page @mobile', async ({ page }) => {
     const snapshotPage = new SnapshotMobilePage(page);
     await snapshotPage.open();
-
+    await snapshotPage.isReady();
     await snapshotPage.clickMenuButton();
 
     const mainMenuComponent = snapshotPage.mainMenu;
@@ -65,28 +63,25 @@ test.describe('stock ticker change module @mobile', () => {
   test('should allow user to interact with ticker switcher @mobile', async ({ page }) => {
     const snapshotPage = new SnapshotMobilePage(page);
     await snapshotPage.open();
-    
+    await snapshotPage.isReady();
     const ticketSwitcherComponent = snapshotPage.mainMenu.tickerSwitcher;
 
-    // Test first ticker change: PLTR
     await snapshotPage.clickMenuButton();
     await snapshotPage.mainMenu.clickTickerSwitcherMobile();
     await ticketSwitcherComponent.searchTicker('PLTR');
     await expect(page.getByText('Changing Company...')).toBeVisible();
     await snapshotPage.isReady();
     expect(await snapshotPage.companyName.isVisible()).toBeTruthy();
-    await page.waitForTimeout(2000); // Wait for page to stabilize
+    await page.waitForTimeout(2000);
 
-    // Test second ticker change: NVDA
     await snapshotPage.clickMenuButton();
     await snapshotPage.mainMenu.clickTickerSwitcherMobile();
     await ticketSwitcherComponent.searchTicker('NVDA');
     await expect(page.getByText('Changing Company...')).toBeVisible();
     await snapshotPage.isReady();
     expect(await snapshotPage.companyName.isVisible()).toBeTruthy();
-    await page.waitForTimeout(2000); // Wait for page to stabilize
+    await page.waitForTimeout(2000);
 
-    // Test third ticker change: TSLA
     await snapshotPage.clickMenuButton();
     await snapshotPage.mainMenu.clickTickerSwitcherMobile();
     await ticketSwitcherComponent.searchTicker('TSLA');

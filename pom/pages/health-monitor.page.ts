@@ -4,25 +4,23 @@ import { ChatComponent } from '../components';
 import { BASE_URL } from '../constants';
 import { MainMenuComponent } from '../components';
 
-class HealthMonitorPage implements IPage {
+export class HealthMonitorPage implements IPage {
   readonly page: Page;
 
   constructor(page: Page) {
     this.page = page;
   }
 
-  getUrl(): string {
-    return `${BASE_URL}/health-monitor`;
+  async open(): Promise<void> {
+    await this.page.goto(this.getUrl());
   }
 
   async isReady(): Promise<void> {
     await this.page.waitForLoadState('networkidle');
-    await this.page.getByRole('heading', { name: 'Stock Technicals' }).isVisible();
   }
 
-  async open(): Promise<void> {
-    await this.page.goto(this.getUrl());
-    await this.isReady();
+  getUrl(): string {
+    return `${BASE_URL}/health-monitor`;
   }
 }
 
@@ -36,6 +34,7 @@ export class HealthMonitorDesktopPage extends HealthMonitorPage {
   private readonly shortInterestCard: Locator;
   private readonly seeMoreButtons: Locator;
   private readonly mainContent: Locator;
+  private readonly priceMomentumCard: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -49,6 +48,13 @@ export class HealthMonitorDesktopPage extends HealthMonitorPage {
     this.shortInterestCard = page.locator('text=SHORT INTEREST').locator('..').locator('..');
     this.seeMoreButtons = page.getByRole('button', { name: /see more/i });
     this.mainContent = page.locator('#main-content');
+    this.priceMomentumCard = page.getByRole('heading', { name: 'Price Momentum', exact: true });
+  }
+
+  async isReady(): Promise<void> {
+    await this.page.waitForLoadState('networkidle');
+    await this.page.getByRole('heading', { name: 'Stock Technicals' }).isVisible();
+    await this.priceMomentumCard.isVisible();
   }
 
   async getRSIValue(): Promise<string> {
