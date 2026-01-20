@@ -12,12 +12,13 @@ export class MainMenuComponent {
   private readonly snapshotLink: Locator;
   private readonly changeTickerButton: Locator;
   private readonly changeTickerButtonMobile: Locator;
+  readonly logoutLink: Locator;
 
   readonly tickerSwitcher: TickerSwitcherComponent;
 
   constructor(private readonly page: Page) {
     this.container = this.page.locator('nav').first();
-    this.logoLink = this.page.getByRole('link', { name: 'PublicAI' });
+    this.logoLink = this.page.getByRole('img', { name: 'Public AI Logo' });
     this.homeLink = this.page.getByRole('link', { name: 'Home' });
     this.chatLink = this.page.getByRole('link', { name: 'Chat' });
     this.healthMonitorLink = this.page.getByRole('link', { name: 'Health Monitor' });
@@ -32,10 +33,21 @@ export class MainMenuComponent {
       .or(this.page.locator('[aria-label*="change ticker" i]'));
 
     this.tickerSwitcher = new TickerSwitcherComponent(page);
+
+    this.logoutLink = this.page
+      .locator('div.underline.text-sm')
+      .filter({ hasText: 'Logout' })
+      .first();
   }
 
   async isVisible(): Promise<boolean> {
-    return await this.container.isVisible();
+    return Promise.all([this.snapshotLink.isVisible(), this.logoLink.isVisible()]).then(values =>
+      values.every(value => value)
+    );
+  }
+
+  async logout(): Promise<void> {
+    await this.logoutLink.click();
   }
 
   async waitForComponent(): Promise<void> {
