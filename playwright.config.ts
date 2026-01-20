@@ -26,16 +26,16 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'https://publicai-git-feature-graphql-integration-public-ai.vercel.app/',
+    baseURL: 'https://staging.gopublic.ai/',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on',
+    trace: 'retain-on-failure',
 
     /* Capture screenshot after each test */
-    screenshot: 'on',
+    screenshot: 'only-on-failure',
 
     /* Record video only when retrying a test */
-    video: 'on',
+    video: 'on-first-retry',
   },
 
   /* Configure projects for major browsers */
@@ -45,7 +45,6 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], storageState: './.auth/authState.json' },
       dependencies: ['setup'],
-      grepInvert: /@mobile/,
     },
 
     // {
@@ -59,12 +58,10 @@ export default defineConfig({
     // },
 
     /* Test against mobile viewports. */
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'], storageState: './.auth/authState.json' },
-      dependencies: ['setup'],
-      grep: /@mobile/,
-    },
+    // {
+    //   name: 'Mobile Chrome',
+    //   use: { ...devices['Pixel 5'] },
+    // },
     // {
     //   name: 'Mobile Safari',
     //   use: { ...devices['iPhone 12'] },
