@@ -5,65 +5,28 @@ test.describe('Snapshot Page - Interactions', () => {
   test.setTimeout(90_000);
 
   test('should handle navigation interactions @desktop', async ({ page }) => {
-    await page.setViewportSize({ width: 1728, height: 1117 });
-    
-    const snapshotPage = new SnapshotDesktopPage(page);
-    
-    console.log('\n=== Testing snapshot page navigation interactions ===');
+    const snapshotDesktopPage = new SnapshotDesktopPage(page);
 
-    await snapshotPage.open();
-    await snapshotPage.isReady();
-    console.log('✓ Navigated to snapshot page');
+    await snapshotDesktopPage.open();
+    await snapshotDesktopPage.isReady();
 
-    // ===== MARKETS TAB SWITCHING =====
-    console.log('\n=== Testing MARKETS tab switching ===');
-    
-    // Wait for page to load
-    await page.waitForTimeout(2000);
-    
-    // Click GLOBAL tab
-    await snapshotPage.clickGlobalTab();
-    console.log('✓ Clicked GLOBAL tab');
-    await page.waitForTimeout(1000);
+    await snapshotDesktopPage.clickUsTab();
+    await snapshotDesktopPage.verifyUsMarketIndices();
 
-    // Click MACRO tab
-    await snapshotPage.clickMacroTab();
-    console.log('✓ Clicked MACRO tab');
-    await page.waitForTimeout(1000);
+    await snapshotDesktopPage.clickGlobalTab();
+    await snapshotDesktopPage.verifyGlobalMarketIndices();
 
-    // Click back to US tab
-    await snapshotPage.clickUsTab();
-    console.log('✓ Clicked US tab');
-    await page.waitForTimeout(1000);
-    console.log('✓ Tab switching works correctly');
+    await snapshotDesktopPage.clickMacroTab();
+    await snapshotDesktopPage.verifyMacroIndices();
 
-    // ===== CAROUSEL NAVIGATION =====
-    console.log('\n=== Testing Carousel Navigation ===');
-    
-    // Get initial visible card
-    const initialCardVisible = await snapshotPage.investorLensCard.isVisible();
-    console.log(`✓ Initial card visible: ${initialCardVisible}`);
+    await snapshotDesktopPage.clickRightArrow();
 
-    // Click right arrow
-    await snapshotPage.clickRightArrow();
-    console.log('✓ Clicked right arrow');
-    await page.waitForTimeout(1000);
-
-    // Verify different card is now visible (MACRO card should appear)
-    const macroCardVisible = await snapshotPage.macroCard.isVisible();
+    const macroCardVisible = await snapshotDesktopPage.macroCard.isVisible();
     expect(macroCardVisible).toBe(true);
-    console.log('✓ MACRO card visible after clicking right arrow');
 
-    // Click left arrow
-    await snapshotPage.clickLeftArrow();
-    console.log('✓ Clicked left arrow');
-    await page.waitForTimeout(1000);
+    await snapshotDesktopPage.clickLeftArrow();
 
-    // Verify we're back to initial cards
-    const investorLensVisibleAgain = await snapshotPage.investorLensCard.isVisible();
+    const investorLensVisibleAgain = await snapshotDesktopPage.investorLensCard.isVisible();
     expect(investorLensVisibleAgain).toBe(true);
-    console.log('✓ Investor Lens card visible after clicking left arrow');
-
-    console.log('\n=== Navigation interactions completed successfully ===');
   });
 });

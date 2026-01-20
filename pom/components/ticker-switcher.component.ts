@@ -6,6 +6,7 @@ export class TickerSwitcherComponent {
   private readonly tickerDropdown: Locator;
   private readonly tickerSearchInput: Locator;
   private readonly tickerOptions: Locator;
+  private readonly tickerMenu: Locator;
   //private readonly selectedTickerDisplay: Locator;
 
   constructor(page: Page) {
@@ -14,11 +15,18 @@ export class TickerSwitcherComponent {
     this.tickerDropdown = page.locator('[cmdk-list=""]');
     this.tickerSearchInput = page.getByPlaceholder('Search companies...');
     this.tickerOptions = page.locator('[role="option"][aria-selected="true"]');
-    //this.selectedTickerDisplay = page.locator('[data-testid="selected-ticker"]');
+    this.tickerMenu = page
+      .locator('.mb-2')
+      .locator('button[aria-haspopup="dialog"][data-state]')
+      .first();
   }
 
   async isVisible(): Promise<boolean> {
     return await this.tickerSwitcherButton.isVisible();
+  }
+
+  async nameTicker(): Promise<string> {
+    return (await this.tickerMenu.textContent()) || '';
   }
 
   async isEnabled(): Promise<boolean> {

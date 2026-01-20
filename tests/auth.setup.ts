@@ -3,7 +3,7 @@ import { test as setup } from '@playwright/test';
 import fs from 'fs';
 import { USERNAME, PASSWORD } from '../pom/constants';
 import { OAuthLoginPage } from '../pom/pages/oauth-login.page';
-import { DashboardPage } from '../pom/pages/dashboard.page';
+import { SnapshotDesktopPage } from '../pom/pages/snapshot.page';
 
 const authStatePath = './.auth/authState.json';
 
@@ -13,13 +13,13 @@ setup('login and save state', async ({ page }) => {
   }
 
   const loginPage = new OAuthLoginPage(page);
-  const dashboardPage = new DashboardPage(page);
+  const snapshotPage = new SnapshotDesktopPage(page);
 
   await loginPage.open();
   await loginPage.isReady();
   await loginPage.login(USERNAME, PASSWORD);
 
-  await dashboardPage.isReady();
+  await snapshotPage.isReady();
 
   await new Promise(resolve => setTimeout(resolve, 2000));
 

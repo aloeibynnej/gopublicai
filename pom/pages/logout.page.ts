@@ -20,11 +20,9 @@ export class LogoutPage implements IPage {
   }
 
   async isReady(): Promise<void> {
-    await this.page.getByRole('heading', { name: this.headingText }).waitFor({ state: 'visible' });
-    await this.page.getByText(this.messageText).waitFor({ state: 'visible' });
-    await this.page
-      .getByRole('button', { name: this.loginButtonText })
-      .waitFor({ state: 'visible' });
+    await this.page.getByRole('heading', { name: this.headingText }).isVisible();
+    await this.page.getByText(this.messageText).isVisible();
+    await this.page.getByRole('button', { name: this.loginButtonText }).isVisible();
   }
 
   async open(): Promise<void> {
@@ -37,10 +35,10 @@ export class LogoutPage implements IPage {
   }
 
   async getHeading(): Promise<string> {
-    return await this.page.getByRole('heading', { name: this.headingText }).textContent() || '';
+    return (await this.page.getByRole('heading', { name: this.headingText }).textContent()) || '';
   }
 
   async getMessage(): Promise<string> {
-    return await this.page.getByText(this.messageText).textContent() || '';
+    return (await this.page.getByText(this.messageText).textContent()) || '';
   }
 }
