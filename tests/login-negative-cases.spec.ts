@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pom/pages';
+import { USERNAME, PASSWORD } from '../pom/constants';
 
 test.describe('Login - Negative Test Cases', () => {
   // Use unauthenticated context - no storageState
@@ -86,19 +87,19 @@ test.describe('Login - Negative Test Cases', () => {
 
     expect(page.url()).toContain('/login');
 
-    await loginPage.fillEmail(' test@publicai.com');
+    await loginPage.fillEmail(` ${USERNAME}`);
 
     const emailInput = page.getByPlaceholder('Email');
     const actualValue = await emailInput.inputValue();
-    expect(actualValue).toBe('test@publicai.com');
+    expect(actualValue).toBe(USERNAME);
 
-    await loginPage.fillPassword('TestPassword123!');
+    await loginPage.fillPassword(PASSWORD);
 
     await loginPage.clickLogin();
 
-    await page.waitForLoadState('networkidle');
+    await page.waitForURL(url => !url.toString().includes('/login'), { timeout: 10000 });
 
-    expect(page.url()).toContain('/login');
+    expect(page.url()).not.toContain('/login');
   });
 
   test('should handle email with trailing space (trimmed automatically) @smoke', async ({ page }) => {
@@ -108,18 +109,18 @@ test.describe('Login - Negative Test Cases', () => {
 
     expect(page.url()).toContain('/login');
 
-    await loginPage.fillEmail('test@publicai.com ');
+    await loginPage.fillEmail(`${USERNAME} `);
 
     const emailInput = page.getByPlaceholder('Email');
     const actualValue = await emailInput.inputValue();
-    expect(actualValue).toBe('test@publicai.com');
+    expect(actualValue).toBe(USERNAME);
 
-    await loginPage.fillPassword('TestPassword123!');
+    await loginPage.fillPassword(PASSWORD);
 
     await loginPage.clickLogin();
 
-    await page.waitForLoadState('networkidle');
+    await page.waitForURL(url => !url.toString().includes('/login'), { timeout: 10000 });
 
-    expect(page.url()).toContain('/login');
+    expect(page.url()).not.toContain('/login');
   });
 });
