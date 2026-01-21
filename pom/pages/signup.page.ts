@@ -1,34 +1,41 @@
-import { Page } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { IPage } from '../interfaces';
-import { BASE_URL } from '../constants';
+import { PLATFORM_URL } from '../constants';
 
 export class SignupPage implements IPage {
   readonly page: Page;
 
-  private readonly headingText = 'Create account';
-  private readonly emailPlaceholder = 'Email';
-  private readonly passwordPlaceholder = 'Password';
-  private readonly createAccountButtonText = 'CREATE ACCOUNT';
-  private readonly loginLinkText = 'Log in';
-  private readonly unlicensedToastText = 'It seems that you do not have an active license';
+  private readonly headingText = 'Create Account';
+  private readonly flashAlertText =
+    "It seems that you don't have an active license. We will contact you shortly with the next steps.";
+
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+  readonly createAccountButton: Locator;
+  readonly loginLink: Locator;
 
   constructor(page: Page) {
     this.page = page;
+    this.emailInput = this.page.locator('#user_account_email');
+    this.passwordInput = this.page.locator('#user_account_password');
+    this.createAccountButton = this.page.locator('input.btn-signup[type="submit"]');
+    this.loginLink = this.page.locator('a.login-link');
   }
 
   getUrl(): string {
-    const basePath = 'signup';
+    const basePath = '/signup';
 
-    return `${BASE_URL}${basePath}`;
+    // https://platform-stage.gopublic.ai/signup
+    return `${PLATFORM_URL}${basePath}`;
   }
 
   async isReady(): Promise<void> {
-    await this.page.getByRole('heading', { name: this.headingText }).waitFor({ state: 'visible' });
-    await this.page.getByPlaceholder(this.emailPlaceholder).waitFor({ state: 'visible' });
-    await this.page.getByPlaceholder(this.passwordPlaceholder).waitFor({ state: 'visible' });
     await this.page
-      .getByRole('button', { name: this.createAccountButtonText })
+      .locator('h1.welcome', { hasText: this.headingText })
       .waitFor({ state: 'visible' });
+    await this.emailInput.waitFor({ state: 'visible' });
+    await this.passwordInput.waitFor({ state: 'visible' });
+    await this.createAccountButton.waitFor({ state: 'visible' });
   }
 
   async open(): Promise<void> {
@@ -37,19 +44,19 @@ export class SignupPage implements IPage {
   }
 
   async fillEmail(email: string): Promise<void> {
-    await this.page.getByPlaceholder(this.emailPlaceholder).fill(email);
+    await this.emailInput.fill(email);
   }
 
   async fillPassword(password: string): Promise<void> {
-    await this.page.getByPlaceholder(this.passwordPlaceholder).pressSequentially(password);
+    await this.passwordInput.pressSequentially(password);
   }
 
   async clickCreateAccount(): Promise<void> {
-    await this.page.getByRole('button', { name: this.createAccountButtonText }).click();
+    await this.createAccountButton.click();
   }
 
   async clickLoginLink(): Promise<void> {
-    await this.page.getByRole('link', { name: this.loginLinkText }).click();
+    await this.loginLink.click();
   }
 
   async signup(email: string, password: string): Promise<void> {
@@ -58,11 +65,11 @@ export class SignupPage implements IPage {
     await this.clickCreateAccount();
   }
 
-  async isUnlicensedToastVisible(): Promise<boolean> {
-    return await this.page.getByText(this.unlicensedToastText).isVisible({ timeout: 5000 });
+  async isFlashAlertVisible(): Promise<boolean> {
+    return await this.page.getByText(this.flashAlertText).isVisible();
   }
 
-  async getUnlicensedToastText(): Promise<string> {
-    return await this.page.getByText(this.unlicensedToastText).textContent() || '';
+  async getFlashAlertText(): Promise<string> {
+    return (await this.page.getByText(this.flashAlertText).textContent()) || '';
   }
 }

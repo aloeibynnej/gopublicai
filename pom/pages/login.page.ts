@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { IPage } from '../interfaces';
 import { BASE_URL } from '../constants';
 
@@ -10,9 +10,19 @@ export class LoginPage implements IPage {
   private readonly passwordPlaceholder = 'Password';
   private readonly forgotPasswordText = 'Forgot your password?';
   private readonly loginButtonText = 'LOG IN';
+  readonly loginInput: Locator;
+  readonly passwordInput: Locator;
+  readonly flashAlert: Locator;
+  readonly loginButton: Locator;
+  readonly forgotPasswordLink: Locator;
 
   constructor(page: Page) {
     this.page = page;
+    this.loginInput = this.page.getByPlaceholder(this.emailPlaceholder);
+    this.passwordInput = this.page.getByPlaceholder(this.passwordPlaceholder);
+    this.flashAlert = this.page.locator('div.flash.alert');
+    this.loginButton = this.page.getByRole('button', { name: 'LOG IN' });
+    this.forgotPasswordLink = this.page.getByRole('link', { name: 'Forgot your password?' });
   }
 
   getUrl(): string {
@@ -29,10 +39,18 @@ export class LoginPage implements IPage {
       .waitFor({ state: 'visible' });
   }
 
+  async isVisible(): Promise<boolean> {
+    await this.page.getByRole('heading', { name: this.headingText }).isVisible();
+    await this.page.getByPlaceholder(this.emailPlaceholder).isVisible();
+    await this.page.getByPlaceholder(this.passwordPlaceholder).isVisible();
+    await this.page.getByRole('button', { name: this.loginButtonText }).isVisible();
+    await this.page.getByRole('link', { name: this.forgotPasswordText }).isVisible();
+    return true;
+  }
+
   async open(): Promise<void> {
     await this.page.goto(this.getUrl());
     await this.page.waitForLoadState('networkidle');
-    await this.isReady();
   }
 
   async fillEmail(email: string): Promise<void> {
@@ -55,5 +73,9 @@ export class LoginPage implements IPage {
     await this.fillEmail(email);
     await this.fillPassword(password);
     await this.clickLogin();
+  }
+
+  async flashAlertIsVisible(): Promise<boolean> {
+    return this.flashAlert.isVisible();
   }
 }

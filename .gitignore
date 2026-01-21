@@ -140,4 +140,4 @@ vite.config.ts.timestamp-*
 
 .auth
 playwright-report
-test-results
+test-results/

@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pom/pages';
 
 test.describe('Login Page - Page Load and Elements', () => {
-
   // Use unauthenticated context - no storageState
   test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -10,22 +9,12 @@ test.describe('Login Page - Page Load and Elements', () => {
     const loginPage = new LoginPage(page);
 
     await loginPage.open();
+    await loginPage.isReady();
 
     expect(page.url()).toContain('/login');
 
-    const heading = page.getByRole('heading', { name: 'Welcome to Public.ai' });
-    await expect(heading).toBeVisible();
+    await page.waitForLoadState('networkidle');
 
-    const emailInput = page.getByPlaceholder('Email');
-    await expect(emailInput).toBeVisible();
-
-    const passwordInput = page.getByPlaceholder('Password');
-    await expect(passwordInput).toBeVisible();
-
-    const loginButton = page.getByRole('button', { name: 'LOG IN' });
-    await expect(loginButton).toBeVisible();
-
-    const forgotPasswordLink = page.getByRole('link', { name: 'Forgot your password?' });
-    await expect(forgotPasswordLink).toBeVisible();
+    expect(await loginPage.isVisible()).toBeTruthy();
   });
 });

@@ -29,12 +29,6 @@ class SnapshotPage implements IPage {
   readonly stockTicker: Locator;
   readonly greetingMessage: Locator;
   readonly stockSummary: Locator;
-  readonly timePeriod1DButton: Locator;
-  readonly timePeriod1MButton: Locator;
-  readonly timePeriod3MButton: Locator;
-  readonly timePeriod1YButton: Locator;
-  readonly timePeriod5YButton: Locator;
-  readonly timePeriodAllButton: Locator;
   readonly percentageChangeText: Locator;
 
   private readonly mainContent: Locator;
@@ -46,25 +40,25 @@ class SnapshotPage implements IPage {
     this.capitalMarketScrollSection = page.getByText('Capital Market Scroll');
     this.companyName = page.locator('div.text-base.font-semibold.uppercase.font-pitchsans');
     
-    // TODO: Frontend should use semantic <main> element instead of div#main-content
-    this.mainContent = page.getByRole('main').or(page.locator('#main-content'));
-    // Use the one-question-outer div that contains the card title
-    this.investorLensCard = page.locator('.one-question-outer:has-text("Investor Lens")').first();
-    this.peerAnalysisCard = page.locator('.one-question-outer:has-text("Peer Analysis")').first();
-    this.sectorAnalysisCard = page.locator('.one-question-outer:has-text("Sector Analysis")').first();
-    this.stockTechnicalsCard = page.locator('.one-question-outer:has-text("Stock Technicals")').first();
+    this.mainContent = page.getByRole('main');
+    // TODO: Frontend will add role="button" to analysis card divs for accessibility
+    // Preferred: page.getByRole('button', { name: 'Investor Lens' })
+    this.investorLensCard = page.getByRole('button', { name: 'Investor Lens' }).or(page.locator('.one-question-outer:has-text("Investor Lens")')).first();
+    this.peerAnalysisCard = page.getByRole('button', { name: 'Peer Analysis' }).or(page.locator('.one-question-outer:has-text("Peer Analysis")')).first();
+    this.sectorAnalysisCard = page.getByRole('button', { name: 'Sector Analysis' }).or(page.locator('.one-question-outer:has-text("Sector Analysis")')).first();
+    this.stockTechnicalsCard = page.getByRole('button', { name: 'Stock Technicals' }).or(page.locator('.one-question-outer:has-text("Stock Technicals")')).first();
     // MACRO card - ensure we only match the analysis card, not the sidebar navigation
-    this.macroCard = page.locator('.one-question-outer').filter({ hasText: 'MACRO' }).first();
+    this.macroCard = page.getByRole('button', { name: 'MACRO' }).or(page.locator('.one-question-outer').filter({ hasText: 'MACRO' })).first();
     
     // TODO: Frontend team should add data-testid attributes to carousel navigation arrows:
     // - Left arrow button: data-testid="carousel-prev-button" or data-testid="analysis-carousel-prev"
     // - Right arrow button: data-testid="carousel-next-button" or data-testid="analysis-carousel-next"
     // These buttons are in the .embla__controls section below the analysis cards carousel
     
-    // Carousel navigation arrows - try multiple selector strategies (semantic > data-testid > structural)
-    // TODO: Frontend should add aria-label="Previous" and aria-label="Next" to carousel buttons
-    this.leftArrowButton = page.getByRole('button', { name: /previous|prev/i }).or(page.locator('button[data-testid*="carousel-prev"], .embla__controls button')).first();
-    this.rightArrowButton = page.getByRole('button', { name: /next/i }).or(page.locator('button[data-testid*="carousel-next"], .embla__controls button')).last();
+    // TODO: Frontend should add aria-label attributes to carousel buttons for accessibility
+    // Preferred: page.getByRole('button', { name: 'Previous' }) and page.getByRole('button', { name: 'Next' })
+    this.leftArrowButton = page.getByRole('button', { name: 'Previous' }).or(page.locator('.embla__controls button')).first();
+    this.rightArrowButton = page.getByRole('button', { name: 'Next' }).or(page.locator('.embla__controls button')).last();
     
     // TODO: Frontend should add data-testid attributes to right side navigation elements:
     // - Markets section: data-testid="markets-section"
@@ -76,10 +70,9 @@ class SnapshotPage implements IPage {
     // Right side navigation - Markets section
     // TODO: Frontend should ensure MARKETS is a proper heading element (h1-h6)
     this.marketsHeading = page.getByRole('heading', { name: /^MARKETS$/i }).or(page.locator('text=/^MARKETS$/i')).first();
-    // TODO: Frontend should ensure tabs have proper role="tab" and accessible names
-    this.usTab = page.getByRole('tab', { name: 'US' }).or(page.locator('button:has-text("US")')).first();
-    this.globalTab = page.getByRole('tab', { name: 'GLOBAL' }).or(page.locator('button:has-text("GLOBAL")')).first();
-    this.macroTab = page.getByRole('tab', { name: 'MACRO' }).or(page.locator('button:has-text("MACRO")')).first();
+    this.usTab = page.getByRole('tab', { name: 'US' });
+    this.globalTab = page.getByRole('tab', { name: 'GLOBAL' });
+    this.macroTab = page.getByRole('tab', { name: 'MACRO' });
     
     // Peer comparison section - use regex to match dynamic stock ticker
     // TODO: Frontend should ensure this is a proper heading element (h1-h6)
@@ -112,22 +105,7 @@ class SnapshotPage implements IPage {
     // Past month label - has id="delta-range"
     this.pastMonthLabel = tvIframe.locator('#delta-range, span[id="delta-range"]').first();
     
-    // TODO: Frontend should add data-testid attributes to time period buttons:
-    // - 1D button: data-testid="time-period-1d"
-    // - 1M button: data-testid="time-period-1m"
-    // - 3M button: data-testid="time-period-3m"
-    // - 1Y button: data-testid="time-period-1y"
-    // - 5Y button: data-testid="time-period-5y"
-    // - All button: data-testid="time-period-all"
-    
-    // Time period buttons - these are inside the TradingView iframe
-    // The buttons are in a div with class "tv-widget-chart__timeframes"
-    this.timePeriod1DButton = tvIframe.locator('text=/^1D$/').first();
-    this.timePeriod1MButton = tvIframe.locator('text=/^1M$/').first();
-    this.timePeriod3MButton = tvIframe.locator('text=/^3M$/').first();
-    this.timePeriod1YButton = tvIframe.locator('text=/^1Y$/').first();
-    this.timePeriod5YButton = tvIframe.locator('text=/^5Y$/').first();
-    this.timePeriodAllButton = tvIframe.locator('text=/^All$/').first();
+    // NOTE: Time period buttons are in TradingView iframe (third-party) - cannot be modified, should not be tested
     
     // Percentage change text - matches patterns like "+177,793.45%", "-4.38%", etc.
     // This is also inside the TradingView iframe (id="delta-pt")
@@ -520,61 +498,10 @@ class SnapshotPage implements IPage {
     return tickerVisible && companyVisible;
   }
 
-  async clickTimePeriod1D(): Promise<void> {
-    await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1500);
-    await this.timePeriod1DButton.click();
-    await this.page.waitForTimeout(1500);
-  }
-
-  async clickTimePeriod1M(): Promise<void> {
-    await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1500);
-    await this.timePeriod1MButton.click();
-    await this.page.waitForTimeout(1500);
-  }
-
-  async clickTimePeriod3M(): Promise<void> {
-    await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1500);
-    await this.timePeriod3MButton.click();
-    await this.page.waitForTimeout(1500);
-  }
-
-  async clickTimePeriod1Y(): Promise<void> {
-    await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1500);
-    await this.timePeriod1YButton.click();
-    await this.page.waitForTimeout(1500);
-  }
-
-  async clickTimePeriod5Y(): Promise<void> {
-    await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1500);
-    await this.timePeriod5YButton.click();
-    await this.page.waitForTimeout(1500);
-  }
-
-  async clickTimePeriodAll(): Promise<void> {
-    await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1500);
-    await this.timePeriodAllButton.click();
-    await this.page.waitForTimeout(1500);
-  }
-
   async getPercentageChangeText(): Promise<string | null> {
     await this.marketContextHeading.scrollIntoViewIfNeeded();
     await this.page.waitForTimeout(1000);
     return await this.percentageChangeText.textContent();
-  }
-
-  async verifyTimePeriodLabelContains(expectedText: string): Promise<boolean> {
-    await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
-    // The time period label is inside the TradingView iframe (id="delta-range")
-    const tvIframe = this.page.frameLocator('iframe[id*="tradingview"], iframe[src*="tradingview"]').first();
-    const labelLocator = tvIframe.locator(`text=/${expectedText}/i`).first();
-    return await labelLocator.isVisible({ timeout: 3000 }).catch(() => false);
   }
 }
 

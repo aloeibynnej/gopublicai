@@ -16,11 +16,11 @@ test.describe('page load performance - login page @desktop', () => {
     const startTime = Date.now();
 
     await loginPage.open();
+    await loginPage.isReady();
 
     const loadTime = Date.now() - startTime;
 
     expect(loadTime).toBeLessThan(MAX_LOAD_TIME_MS);
-    console.log(`Login page loaded in ${loadTime}ms`);
   });
 });
 
@@ -34,11 +34,11 @@ test.describe('page load performance - authenticated pages @desktop', () => {
     const startTime = Date.now();
 
     await snapshotPage.open();
+    await snapshotPage.isReady();
 
     const loadTime = Date.now() - startTime;
 
     expect(loadTime).toBeLessThan(MAX_LOAD_TIME_MS);
-    console.log(`Snapshot page loaded in ${loadTime}ms`);
   });
 
   test('should load health monitor page with all critical elements within 30 seconds', async ({
@@ -48,17 +48,18 @@ test.describe('page load performance - authenticated pages @desktop', () => {
     const startTime = Date.now();
 
     await healthMonitorPage.open();
+    await healthMonitorPage.isReady();
 
     const loadTime = Date.now() - startTime;
 
     expect(loadTime).toBeLessThan(MAX_LOAD_TIME_MS);
-    console.log(`Health Monitor page loaded in ${loadTime}ms`);
   });
 
   test('should verify no loading spinners remain after page load', async ({ page }) => {
     const snapshotPage = new SnapshotDesktopPage(page);
 
     await snapshotPage.open();
+    await snapshotPage.isReady();
 
     const loadingSpinners = page.locator(
       '[data-testid*="loading"], [class*="loading"], [class*="spinner"]'
@@ -80,11 +81,11 @@ test.describe('page load performance - login page @mobile', () => {
     const startTime = Date.now();
 
     await loginPage.open();
+    await loginPage.isReady();
 
     const loadTime = Date.now() - startTime;
 
     expect(loadTime).toBeLessThan(MAX_LOAD_TIME_MS);
-    console.log(`Login page loaded in ${loadTime}ms (mobile)`);
   });
 });
 
@@ -94,35 +95,36 @@ test.describe('page load performance - authenticated pages @mobile', () => {
   test('should load snapshot page with all critical elements within 30 seconds', async ({
     page,
   }) => {
-    const snapshotPage = new SnapshotMobilePage(page);
+    const snapshotMobilePage = new SnapshotMobilePage(page);
     const startTime = Date.now();
 
-    await snapshotPage.open();
+    await snapshotMobilePage.open();
+    await snapshotMobilePage.isReady();
 
     const loadTime = Date.now() - startTime;
 
     expect(loadTime).toBeLessThan(MAX_LOAD_TIME_MS);
-    console.log(`Snapshot page loaded in ${loadTime}ms (mobile)`);
   });
 
   test('should load health monitor page with all critical elements within 30 seconds', async ({
     page,
   }) => {
-    const healthMonitorPage = new HealthMonitorMobilePage(page);
+    const healthMonitorMobilePage = new HealthMonitorMobilePage(page);
     const startTime = Date.now();
 
-    await healthMonitorPage.open();
+    await healthMonitorMobilePage.open();
+    await healthMonitorMobilePage.isReady();
 
     const loadTime = Date.now() - startTime;
 
     expect(loadTime).toBeLessThan(MAX_LOAD_TIME_MS);
-    console.log(`Health Monitor page loaded in ${loadTime}ms (mobile)`);
   });
 
   test('should verify no loading spinners remain after page load', async ({ page }) => {
-    const snapshotPage = new SnapshotMobilePage(page);
+    const snapshotMobilePage = new SnapshotMobilePage(page);
 
-    await snapshotPage.open();
+    await snapshotMobilePage.open();
+    await snapshotMobilePage.isReady();
 
     const loadingSpinners = page.locator(
       '[data-testid*="loading"], [class*="loading"], [class*="spinner"]'
