@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage, SnapshotDesktopPage } from '../pom/pages';
-import { USERNAME } from 'pom/constants';
+import { USERNAME, PASSWORD } from '../pom/constants';
 
 test.describe('Login - Negative Test Cases', () => {
   // Use unauthenticated context - no storageState
@@ -27,7 +27,7 @@ test.describe('Login - Negative Test Cases', () => {
 
     await page.waitForLoadState('networkidle');
 
-    const isSnapshotVisible = await snapshotPage.mainMenuComponent.isVisible();
+    const isSnapshotVisible = await snapshotPage.mainMenu.isVisible();
 
     expect(isSnapshotVisible).toBe(false);
   });
@@ -53,7 +53,7 @@ test.describe('Login - Negative Test Cases', () => {
 
     await page.waitForLoadState('networkidle');
 
-    const isSnapshotVisible = await snapshotPage.mainMenuComponent.isVisible();
+    const isSnapshotVisible = await snapshotPage.mainMenu.isVisible();
 
     expect(isSnapshotVisible).toBe(false);
   });
@@ -80,7 +80,7 @@ test.describe('Login - Negative Test Cases', () => {
 
     await page.waitForLoadState('networkidle');
 
-    const isSnapshotVisible = await snapshotPage.mainMenuComponent.isVisible();
+    const isSnapshotVisible = await snapshotPage.mainMenu.isVisible();
 
     expect(isSnapshotVisible).toBe(false);
   });
@@ -107,7 +107,7 @@ test.describe('Login - Negative Test Cases', () => {
 
     await page.waitForLoadState('networkidle');
 
-    const isSnapshotVisible = await snapshotPage.mainMenuComponent.isVisible();
+    const isSnapshotVisible = await snapshotPage.mainMenu.isVisible();
 
     expect(isSnapshotVisible).toBe(false);
   });
@@ -138,12 +138,12 @@ test.describe('Login - Negative Test Cases', () => {
 
     await page.waitForLoadState('networkidle');
 
-    const isSnapshotVisible = await snapshotPage.mainMenuComponent.isVisible();
+    const isSnapshotVisible = await snapshotPage.mainMenu.isVisible();
 
     expect(isSnapshotVisible).toBe(false);
   });
 
-  test('should handle email with leading space (fails to login) @smoke', async ({ page }) => {
+  test('should handle email with leading space (trimmed automatically) @smoke', async ({ page }) => {
     const loginPage = new LoginPage(page);
     const snapshotPage = new SnapshotDesktopPage(page);
 
@@ -152,21 +152,25 @@ test.describe('Login - Negative Test Cases', () => {
 
     expect(page.url()).toContain('/login');
 
-    await loginPage.fillEmail(' ' + USERNAME);
+    await loginPage.fillEmail(` ${USERNAME}`);
 
-    await loginPage.fillPassword('WrongPassword123!');
+    const emailInput = page.getByPlaceholder('Email');
+    const actualValue = await emailInput.inputValue();
+    expect(actualValue).toBe(USERNAME);
+
+    await loginPage.fillPassword(PASSWORD);
 
     await loginPage.clickLogin();
-    expect(await loginPage.flashAlertIsVisible()).toBe(true);
 
-    await page.waitForLoadState('networkidle');
+    await page.waitForURL(url => !url.toString().includes('/login'), { timeout: 10000 });
 
-    const isSnapshotVisible = await snapshotPage.mainMenuComponent.isVisible();
+    expect(page.url()).not.toContain('/login');
 
-    expect(isSnapshotVisible).toBe(false);
+    const isSnapshotVisible = await snapshotPage.mainMenu.isVisible();
+    expect(isSnapshotVisible).toBe(true);
   });
 
-  test('should handle email with trailing space (fails to login) @smoke', async ({ page }) => {
+  test('should handle email with trailing space (trimmed automatically) @smoke', async ({ page }) => {
     const loginPage = new LoginPage(page);
     const snapshotPage = new SnapshotDesktopPage(page);
 
@@ -175,20 +179,21 @@ test.describe('Login - Negative Test Cases', () => {
 
     expect(page.url()).toContain('/login');
 
-    await loginPage.fillEmail(USERNAME + ' ');
+    await loginPage.fillEmail(`${USERNAME} `);
 
-    await loginPage.fillPassword('WrongPassword123!');
+    const emailInput = page.getByPlaceholder('Email');
+    const actualValue = await emailInput.inputValue();
+    expect(actualValue).toBe(USERNAME);
+
+    await loginPage.fillPassword(PASSWORD);
 
     await loginPage.clickLogin();
 
-    expect(await loginPage.flashAlertIsVisible()).toBe(true);
+    await page.waitForURL(url => !url.toString().includes('/login'), { timeout: 10000 });
 
-    await page.waitForLoadState('networkidle');
+    expect(page.url()).not.toContain('/login');
 
-    expect(page.url()).toContain('/login');
-
-    const isSnapshotVisible = await snapshotPage.mainMenuComponent.isVisible();
-
-    expect(isSnapshotVisible).toBe(false);
+    const isSnapshotVisible = await snapshotPage.mainMenu.isVisible();
+    expect(isSnapshotVisible).toBe(true);
   });
 });
