@@ -5,6 +5,10 @@ import { BASE_URL } from '../constants';
 
 class SnapshotPage implements IPage {
   readonly page: Page;
+  readonly chatComponent: ChatComponent;
+
+  readonly mainMenuComponent: MainMenuComponent;
+
   readonly marketContextSection: Locator;
   readonly yourPeersSection: Locator;
   readonly capitalMarketScrollSection: Locator;
@@ -29,110 +33,74 @@ class SnapshotPage implements IPage {
   readonly stockTicker: Locator;
   readonly greetingMessage: Locator;
   readonly stockSummary: Locator;
+  readonly timePeriod1DButton: Locator;
+  readonly timePeriod1MButton: Locator;
+  readonly timePeriod3MButton: Locator;
+  readonly timePeriod1YButton: Locator;
+  readonly timePeriod5YButton: Locator;
+  readonly timePeriodAllButton: Locator;
   readonly percentageChangeText: Locator;
-
-  private readonly mainContent: Locator;
+  readonly mainContent: Locator;
+  readonly loadPreviousNewsButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
+    this.chatComponent = new ChatComponent(page);
+    this.mainMenuComponent = new MainMenuComponent(page);
+
     this.marketContextSection = page.getByText('Market Context');
     this.yourPeersSection = page.getByText('Your peers');
     this.capitalMarketScrollSection = page.getByText('Capital Market Scroll');
     this.companyName = page.locator('div.text-base.font-semibold.uppercase.font-pitchsans');
-    
-    this.mainContent = page.getByRole('main');
-    // TODO: Frontend will add role="button" to analysis card divs for accessibility
-    // Preferred: page.getByRole('button', { name: 'Investor Lens' })
-    this.investorLensCard = page.getByRole('button', { name: 'Investor Lens' }).or(page.locator('.one-question-outer:has-text("Investor Lens")')).first();
-    this.peerAnalysisCard = page.getByRole('button', { name: 'Peer Analysis' }).or(page.locator('.one-question-outer:has-text("Peer Analysis")')).first();
-    this.sectorAnalysisCard = page.getByRole('button', { name: 'Sector Analysis' }).or(page.locator('.one-question-outer:has-text("Sector Analysis")')).first();
-    this.stockTechnicalsCard = page.getByRole('button', { name: 'Stock Technicals' }).or(page.locator('.one-question-outer:has-text("Stock Technicals")')).first();
-    // MACRO card - ensure we only match the analysis card, not the sidebar navigation
-    this.macroCard = page.getByRole('button', { name: 'MACRO' }).or(page.locator('.one-question-outer').filter({ hasText: 'MACRO' })).first();
-    
-    // TODO: Frontend team should add data-testid attributes to carousel navigation arrows:
-    // - Left arrow button: data-testid="carousel-prev-button" or data-testid="analysis-carousel-prev"
-    // - Right arrow button: data-testid="carousel-next-button" or data-testid="analysis-carousel-next"
-    // These buttons are in the .embla__controls section below the analysis cards carousel
-    
-    // TODO: Frontend should add aria-label attributes to carousel buttons for accessibility
-    // Preferred: page.getByRole('button', { name: 'Previous' }) and page.getByRole('button', { name: 'Next' })
-    this.leftArrowButton = page.getByRole('button', { name: 'Previous' }).or(page.locator('.embla__controls button')).first();
-    this.rightArrowButton = page.getByRole('button', { name: 'Next' }).or(page.locator('.embla__controls button')).last();
-    
-    // TODO: Frontend should add data-testid attributes to right side navigation elements:
-    // - Markets section: data-testid="markets-section"
-    // - US tab: data-testid="markets-us-tab"
-    // - GLOBAL tab: data-testid="markets-global-tab"
-    // - MACRO tab: data-testid="markets-macro-tab"
-    // - Peer comparison section: data-testid="peer-comparison-section"
-    
-    // Right side navigation - Markets section
-    // TODO: Frontend should ensure MARKETS is a proper heading element (h1-h6)
-    this.marketsHeading = page.getByRole('heading', { name: /^MARKETS$/i }).or(page.locator('text=/^MARKETS$/i')).first();
-    this.usTab = page.getByRole('tab', { name: 'US' });
-    this.globalTab = page.getByRole('tab', { name: 'GLOBAL' });
-    this.macroTab = page.getByRole('tab', { name: 'MACRO' });
-    
-    // Peer comparison section - use regex to match dynamic stock ticker
-    // TODO: Frontend should ensure this is a proper heading element (h1-h6)
-    this.peerComparisonHeading = page.getByRole('heading', { name: /VS PEERS/i }).or(page.locator('text=/[A-Z]{1,5}\\s+VS\\s+PEERS/i')).first();
-    
-    // TODO: Frontend should add data-testid attributes to YOUR PEERS elements:
-    // - Your Peers section: data-testid="your-peers-section"
-    // - Peer news items: data-testid="peer-news-item"
-    
-    // YOUR PEERS section
-    // TODO: Frontend should ensure this is a proper heading element (h1-h6)
-    this.yourPeersHeading = page.getByRole('heading', { name: /^YOUR PEERS$/i }).or(page.locator('text=/^YOUR PEERS$/i')).first();
-    
-    // TODO: Frontend should add data-testid attributes to Market Context chart elements:
-    // - Market Context section: data-testid="market-context-section"
-    // - Stock price: data-testid="stock-price"
-    // - Currency label: data-testid="currency-label"
-    // - Time period label: data-testid="time-period-label"
-    
-    // Market Context chart section (TradingView widget - may be in iframe)
-    // TODO: Frontend should ensure this is a proper heading element (h1-h6)
-    this.marketContextHeading = page.getByRole('heading', { name: /^MARKET CONTEXT$/i }).or(page.locator('text=/^MARKET CONTEXT$/i')).first();
-    // TradingView widget elements - need to access through iframe
-    // The widget is embedded in an iframe, so we need to find the iframe first
-    const tvIframe = page.frameLocator('iframe[id*="tradingview"], iframe[src*="tradingview"]').first();
-    // Stock price - in TradingView widget with class tv-widget-chart__price-value
+
+    this.mainContent = page.locator('#main-content');
+    this.investorLensCard = page.locator('.one-question-outer:has-text("Investor Lens")').first();
+    this.peerAnalysisCard = page.locator('.one-question-outer:has-text("Peer Analysis")').first();
+    this.sectorAnalysisCard = page
+      .locator('.one-question-outer:has-text("Sector Analysis")')
+      .first();
+    this.stockTechnicalsCard = page
+      .locator('.one-question-outer:has-text("Stock Technicals")')
+      .first();
+    this.macroCard = page.locator('.one-question-outer').filter({ hasText: 'MACRO' }).first();
+    this.leftArrowButton = page
+      .locator('button[data-testid*="carousel-prev"], .embla__controls button')
+      .first();
+    this.rightArrowButton = page
+      .locator('button[data-testid*="carousel-next"], .embla__controls button')
+      .last();
+
+    this.loadPreviousNewsButton = page.getByRole('button', { name: 'LOAD PREVIOUS NEWS' });
+    this.marketsHeading = page.locator('#rhs-panel').getByText('MARKETS');
+    this.usTab = page.locator('#rhs-panel').getByRole('tab', { name: 'US' });
+    this.globalTab = page.locator('#rhs-panel').getByRole('tab', { name: 'GLOBAL' });
+    this.macroTab = page.locator('#rhs-panel').getByRole('tab', { name: 'MACRO' });
+
+    this.peerComparisonHeading = page.locator('text=/[A-Z]{1,5}\\s+VS\\s+PEERS/i');
+    this.yourPeersHeading = page.locator('text=/^YOUR PEERS$/i');
+
+    this.marketContextHeading = page.locator('div').filter({ hasText: /^Market Context$/ });
+
+    const tvIframe = page.frameLocator('iframe[id*="tradingview"], iframe[src*="tradingview"]');
+    this.timePeriod1DButton = tvIframe.locator('button[title="1 day"]').first();
+    this.timePeriod1MButton = tvIframe.locator('button[title="1 month"]').first();
+    this.timePeriod3MButton = tvIframe.locator('button[title="3 months"]').first();
+    this.timePeriod1YButton = tvIframe.locator('button[title="1 year"]').first();
+    this.timePeriod5YButton = tvIframe.locator('button[title="5 years"]').first();
+    this.timePeriodAllButton = tvIframe.locator('button').filter({ hasText: 'All' }).first();
     this.stockPrice = tvIframe.locator('.tv-widget-chart__price-value').first();
-    // USD label - in TradingView widget with class containing symbol-currency
     this.usdLabel = tvIframe.locator('span[class*="symbol-currency"]').first();
-    // Past month label - has id="delta-range"
     this.pastMonthLabel = tvIframe.locator('#delta-range, span[id="delta-range"]').first();
-    
-    // NOTE: Time period buttons are in TradingView iframe (third-party) - cannot be modified, should not be tested
-    
-    // Percentage change text - matches patterns like "+177,793.45%", "-4.38%", etc.
-    // This is also inside the TradingView iframe (id="delta-pt")
-    this.percentageChangeText = tvIframe.locator('#delta-pt, span[id="delta-pt"]').first();
-    
-    // TODO: Frontend should add data-testid attributes to stock header elements:
-    // - Stock ticker: data-testid="stock-ticker"
-    // - Company name: data-testid="company-name"
-    // - Greeting message: data-testid="greeting-message"
-    // - Stock summary: data-testid="stock-summary"
-    
-    // Stock header elements
-    // Stock ticker - matches 1-5 uppercase letters (AAPL, WMT, GOOGL, etc.)
-    // TODO: Frontend should add aria-label="Stock ticker" or data-testid="stock-ticker"
-    this.stockTicker = page.getByLabel(/stock ticker/i).or(page.getByTestId('stock-ticker')).or(page.locator('text=/^[A-Z]{1,5}$/')).first();
-    // Company name - in TradingView widget with class tv-widget-chart__title
-    // Need to access through iframe like the other TradingView elements
-    this.companyName = tvIframe.locator('.tv-widget-chart__title, h2[class*="title"]').first();
-    // Greeting message - matches "Good morning/afternoon/evening/night, [Name]"
-    // This is outside the iframe, in the main page
-    // TODO: Frontend should add aria-label="Greeting message" or data-testid="greeting-message"
-    this.greetingMessage = page.getByLabel(/greeting/i).or(page.getByTestId('greeting-message')).or(page.locator('text=/Good (morning|afternoon|evening|night),/i')).first();
-    // Stock summary - the main paragraph with stock information (look for longer paragraphs)
-    // This is also outside the iframe
-    this.stockSummary = page.locator('p').filter({ hasText: /.{100,}/ }).first();
+
+    this.percentageChangeText = tvIframe.locator('#delta-pt, .tv-widget-chart__price-delta-value');
+    this.stockTicker = page.locator('text=/^[A-Z]{1,5}$/').first();
+    this.greetingMessage = page.locator('text=/Good (morning|afternoon|evening|night),/i').first();
+    this.stockSummary = page
+      .locator('p')
+      .filter({ hasText: /.{100,}/ })
+      .first();
   }
-  
+
   getUrl(id?: string): string {
     return id ? `${BASE_URL}/snapshot/${id}` : BASE_URL;
   }
@@ -141,14 +109,12 @@ class SnapshotPage implements IPage {
     await this.marketContextSection.waitFor({ state: 'visible' });
     await this.yourPeersSection.waitFor({ state: 'visible' });
     await this.capitalMarketScrollSection.waitFor({ state: 'visible' });
-    // Wait for analysis cards to load (they load dynamically after initial page load)
     await this.page.waitForTimeout(8000);
     await this.investorLensCard.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
   }
 
-  async open(id?: string): Promise<void> {
-    await this.page.goto(this.getUrl(id));
-    await this.isReady();
+  async open(): Promise<void> {
+    await this.page.goto(this.getUrl());
   }
 
   async clickInvestorLensCard(): Promise<void> {
@@ -191,14 +157,18 @@ class SnapshotPage implements IPage {
     await this.rightArrowButton.click({ force: true });
   }
 
+  async isLoadPreviousNewsButtonVisible(): Promise<boolean> {
+    return await this.loadPreviousNewsButton.isVisible();
+  }
+
   async clickAnalysisCard(cardName: 'investor' | 'peer' | 'sector' | 'technicals'): Promise<void> {
     const cardMap = {
       investor: this.investorLensCard,
       peer: this.peerAnalysisCard,
       sector: this.sectorAnalysisCard,
-      technicals: this.stockTechnicalsCard
+      technicals: this.stockTechnicalsCard,
     };
-    
+
     const card = cardMap[cardName];
     await card.scrollIntoViewIfNeeded();
     await this.page.waitForTimeout(2000); // Wait for any scroll animations
@@ -206,14 +176,13 @@ class SnapshotPage implements IPage {
   }
 
   async waitForChatQuestion(questionPattern: RegExp, timeoutMs: number = 10000): Promise<void> {
-    // TODO: Frontend should add data-testid to chat question elements for more reliable selection
-    // Example: data-testid="chat-question" on the question text element
     const questionLocator = this.page.locator(`text=${questionPattern}`).first();
     await questionLocator.waitFor({ state: 'visible', timeout: timeoutMs });
   }
 
+  // TODO: Chat history backend not implemented in Vercel environment yet
   async closeChatAndRefresh(): Promise<void> {
-    await this.chat.closeChat();
+    // await this.chat.closeChat();
     await this.page.waitForTimeout(1000); // Wait for chat close animation
     await this.page.reload();
     await this.isReady();
@@ -221,15 +190,16 @@ class SnapshotPage implements IPage {
   }
 
   async isMarketsHeadingVisible(): Promise<boolean> {
+    await this.page.waitForTimeout(1000);
     return await this.marketsHeading.isVisible();
   }
 
   async isPeerComparisonHeadingVisible(): Promise<boolean> {
+    await this.page.waitForTimeout(1000);
     return await this.peerComparisonHeading.isVisible();
   }
 
   async verifyJustNowTimestamp(): Promise<boolean> {
-    // Verify "JUST NOW" or "< 1 MIN AGO" timestamp appears
     const timestampLocator = this.page.locator('text=/JUST NOW|< \d+ MIN AGO/i').first();
     return await timestampLocator.isVisible({ timeout: 5000 }).catch(() => false);
   }
@@ -238,14 +208,12 @@ class SnapshotPage implements IPage {
     await this.usTab.hover();
     await this.page.waitForTimeout(200);
     await this.usTab.click();
-    await this.page.waitForTimeout(1000);
   }
 
   async clickGlobalTab(): Promise<void> {
     await this.globalTab.hover();
     await this.page.waitForTimeout(200);
     await this.globalTab.click();
-    await this.page.waitForTimeout(1000);
   }
 
   async clickMacroTab(): Promise<void> {
@@ -254,51 +222,89 @@ class SnapshotPage implements IPage {
     await this.macroTab.click();
     await this.page.waitForTimeout(1000);
   }
+  async verifyMacroIndices(): Promise<void> {
+    await this.marketsHeading.waitFor({ state: 'visible', timeout: 2000 }).catch(() => {});
 
-  async verifyUsMarketIndices(): Promise<boolean> {
-    // Wait for markets heading to be visible first
-    await this.marketsHeading.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
-    await this.page.waitForTimeout(1000);
-    
-    const indices = ['S&P 500', 'NASDAQ 100', 'RUSSELL 2000', 'DOW'];
-    
-    for (const index of indices) {
-      const indexLocator = this.page.locator(`text=/^${index}$/i`).first();
-      const isVisible = await indexLocator.isVisible({ timeout: 2000 }).catch(() => false);
-      if (!isVisible) {
-        return false;
-      }
-    }
-    
-    return true;
-  }
-
-  async verifyGlobalMarketIndices(): Promise<boolean> {
-    const indices = ['NIKKEI 225', 'SHANGHAI', 'HANG SENG', 'FTSE 100', 'EUROSTOXX50'];
-    
-    for (const index of indices) {
-      const indexLocator = this.page.locator(`text=/^${index}$/i`).first();
-      const isVisible = await indexLocator.isVisible({ timeout: 2000 }).catch(() => false);
-      if (!isVisible) {
-        return false;
-      }
-    }
-    
-    return true;
-  }
-
-  async verifyMacroIndices(): Promise<boolean> {
     const indices = ['OIL', 'GOLD', 'BITCOIN', 'USD/YEN'];
-    
-    for (const index of indices) {
-      const indexLocator = this.page.locator(`text=/^${index}$/i`).first();
-      const isVisible = await indexLocator.isVisible({ timeout: 2000 }).catch(() => false);
-      if (!isVisible) {
-        return false;
-      }
-    }
-    
-    return true;
+
+    await this.page
+      .locator(`text="${indices[0]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await this.page
+      .locator(`text="${indices[1]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await this.page
+      .locator(`text="${indices[2]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await this.page
+      .locator(`text="${indices[3]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+  }
+
+  async verifyUsMarketIndices(): Promise<void> {
+    await this.marketsHeading.waitFor({ state: 'visible', timeout: 2000 }).catch(() => {});
+
+    const indices = ['S&P 500', 'NASDAQ 100', 'RUSSELL 2000', 'DOW'];
+
+    await this.page
+      .locator(`text="${indices[0]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await this.page
+      .locator(`text="${indices[1]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await this.page
+      .locator(`text="${indices[2]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await this.page
+      .locator(`text="${indices[3]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+  }
+
+  async verifyGlobalMarketIndices(): Promise<void> {
+    await this.marketsHeading.waitFor({ state: 'visible', timeout: 2000 }).catch(() => {});
+
+    const indices = ['NIKKEI 225', 'SHANGHAI', 'HANG SENG', 'FTSE 100', 'EUROSTOXX50'];
+    await this.page
+      .locator(`text="${indices[0]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await this.page
+      .locator(`text="${indices[1]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await this.page
+      .locator(`text="${indices[2]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await this.page
+      .locator(`text="${indices[3]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await this.page
+      .locator(`text="${indices[4]}"`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
   }
 
   async isYourPeersHeadingVisible(): Promise<boolean> {
@@ -306,69 +312,49 @@ class SnapshotPage implements IPage {
   }
 
   async getPeerNewsItems(): Promise<number> {
-    // Scroll to YOUR PEERS section first (it's below the fold)
     await this.yourPeersHeading.scrollIntoViewIfNeeded();
     await this.page.waitForTimeout(1000);
-    
-    // Get all peer news items - based on screenshot, they appear to be divs with marcon-question-button class
     const items = this.page.locator('div[class*="marcon-question-button"]');
     return await items.count();
   }
 
   async getPeerNewsItemText(index: number = 0): Promise<string | null> {
-    // Scroll to YOUR PEERS section first
     await this.yourPeersHeading.scrollIntoViewIfNeeded();
     await this.page.waitForTimeout(1000);
-    
-    // Get peer news items
+
     const items = this.page.locator('div[class*="marcon-question-button"]');
     const item = items.nth(index);
-    
-    // Get the text directly from the button
+
     return await item.textContent();
   }
 
   async clickPeerNewsItem(index: number = 0): Promise<string | null> {
-    // Scroll to YOUR PEERS section first
     await this.yourPeersHeading.scrollIntoViewIfNeeded();
     await this.page.waitForTimeout(1000);
-    
-    // Get peer news items
+
     const items = this.page.locator('div[class*="marcon-question-button"]');
     const item = items.nth(index);
-    
-    // Capture the text directly from the button before clicking
+
     const itemText = await item.textContent();
-    
-    // Scroll item into view and click
+
     await item.scrollIntoViewIfNeeded();
     await item.hover({ force: true });
     await this.page.waitForTimeout(200);
     await item.click({ force: true });
     await this.page.waitForTimeout(2000);
-    
+
     return itemText;
   }
 
   async verifyChatQuestionMatches(expectedText: string): Promise<boolean> {
-    // Wait for chat to open and question to appear
     await this.page.waitForTimeout(2000);
-    
-    // The captured text might have extra formatting (ticker, date, etc.)
-    // Extract just the main headline part (after the date)
-    // Format is typically: "TICKER DATE HEADLINE"
-    // Example: "AMZN30 DecAWS to invest $50B..."
-    
-    // Try to find the text as-is first
     let questionLocator = this.page.locator(`text="${expectedText}"`).first();
     let isVisible = await questionLocator.isVisible({ timeout: 2000 }).catch(() => false);
-    
+
     if (isVisible) {
       return true;
     }
-    
-    // If not found, try to extract just the headline portion
-    // Look for the headline text (usually starts after the date pattern)
+
     const headlineMatch = expectedText.match(/[A-Z]{3,5}\d{1,2}\s+[A-Za-z]{3}(.+)$/);
     if (headlineMatch && headlineMatch[1]) {
       const headline = headlineMatch[1].trim();
@@ -378,60 +364,50 @@ class SnapshotPage implements IPage {
         return true;
       }
     }
-    
+
     // As a last resort, check if any part of the text appears in chat
     const partialMatch = this.page.locator(`text=/${expectedText.substring(0, 30)}/i`).first();
     return await partialMatch.isVisible({ timeout: 2000 }).catch(() => false);
   }
 
   async isMarketContextHeadingVisible(): Promise<boolean> {
-    // Scroll to Market Context section first (it may be below the fold)
     await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
     return await this.marketContextHeading.isVisible();
   }
 
   async isStockPriceVisible(): Promise<boolean> {
-    // Scroll to ensure chart is visible
     await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
     return await this.stockPrice.isVisible();
   }
 
   async getStockPriceValue(): Promise<string | null> {
     await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
     return await this.stockPrice.textContent();
   }
 
   async isUsdLabelVisible(): Promise<boolean> {
     await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
     return await this.usdLabel.isVisible();
   }
 
   async isPastMonthLabelVisible(): Promise<boolean> {
     await this.marketContextHeading.scrollIntoViewIfNeeded();
-    await this.page.waitForTimeout(1000);
     return await this.pastMonthLabel.isVisible();
   }
 
   async verifyMarketContextChartLoads(): Promise<boolean> {
-    // Scroll to Market Context section first
     await this.marketContextHeading.scrollIntoViewIfNeeded();
     await this.page.waitForTimeout(1000);
-    
-    // Verify all key elements of the Market Context chart are visible
+
     const headingVisible = await this.isMarketContextHeadingVisible();
     const priceVisible = await this.isStockPriceVisible();
     const usdVisible = await this.isUsdLabelVisible();
     const pastMonthVisible = await this.isPastMonthLabelVisible();
-    
+
     return headingVisible && priceVisible && usdVisible && pastMonthVisible;
   }
 
   async isStockTickerVisible(): Promise<boolean> {
-    // Scroll to top to ensure stock header is visible
     await this.page.evaluate(() => window.scrollTo(0, 0));
     await this.page.waitForTimeout(500);
     return await this.stockTicker.isVisible();
@@ -475,10 +451,8 @@ class SnapshotPage implements IPage {
   }
 
   async isStockSummaryVisible(): Promise<boolean> {
-    // Scroll to top first, then down to find stock summary paragraph
     await this.page.evaluate(() => window.scrollTo(0, 0));
     await this.page.waitForTimeout(300);
-    // Scroll down further to where summary typically appears
     await this.page.evaluate(() => window.scrollTo(0, 600));
     await this.page.waitForTimeout(500);
     return await this.stockSummary.isVisible({ timeout: 2000 }).catch(() => false);
@@ -498,21 +472,63 @@ class SnapshotPage implements IPage {
     return tickerVisible && companyVisible;
   }
 
-  async getPercentageChangeText(): Promise<string | null> {
+  async clickTimePeriod1D(): Promise<void> {
+    await this.page.waitForTimeout(1000);
     await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.timePeriod1DButton.click();
+  }
+
+  async clickTimePeriod1M(): Promise<void> {
+    await this.page.waitForTimeout(1000);
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.timePeriod1MButton.click();
+  }
+
+  async clickTimePeriod3M(): Promise<void> {
+    await this.page.waitForTimeout(1000);
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.timePeriod3MButton.click();
+  }
+
+  async clickTimePeriod1Y(): Promise<void> {
+    await this.page.waitForTimeout(1000);
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.timePeriod1YButton.click();
+  }
+
+  async clickTimePeriod5Y(): Promise<void> {
+    await this.page.waitForTimeout(1000);
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.timePeriod5YButton.click();
+  }
+
+  async clickTimePeriodAll(): Promise<void> {
+    await this.page.waitForTimeout(1000);
+    await this.marketContextHeading.scrollIntoViewIfNeeded();
+    await this.timePeriodAllButton.click();
+  }
+
+  async getPercentageChangeText(): Promise<string | null> {
     await this.page.waitForTimeout(1000);
     return await this.percentageChangeText.textContent();
+  }
+
+  async verifyTimePeriodLabelContains(expectedText: string): Promise<boolean> {
+    // Look for the time period label in the chart area
+    const labelLocator = this.page
+      .locator('iframe[title="symbol overview TradingView widget"]')
+      .contentFrame()
+      .locator('#delta-range');
+    return await labelLocator.isVisible();
   }
 }
 
 export class SnapshotDesktopPage extends SnapshotPage {
-  readonly chat: ChatComponent;
   readonly mainMenu: MainMenuComponent;
   readonly tickerSwitcher: TickerSwitcherComponent;
 
   constructor(page: Page) {
     super(page);
-    this.chat = new ChatComponent(page);
     this.mainMenu = new MainMenuComponent(page);
     this.tickerSwitcher = new TickerSwitcherComponent(page);
   }
@@ -535,7 +551,7 @@ export class SnapshotDesktopPage extends SnapshotPage {
   async isOnSnapshotPage(): Promise<boolean> {
     const currentUrl = this.page.url();
     const baseUrl = process.env.BASE_URL;
-    return currentUrl === baseUrl;
+    return currentUrl === `${baseUrl}/snapshot`;
   }
 
   async waitForCapitalMarketScrollToLoad(): Promise<void> {

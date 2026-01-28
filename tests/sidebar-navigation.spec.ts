@@ -10,14 +10,14 @@ test.describe('Sidebar Navigation - Global Navigation Flow', () => {
     await snapshotPage.open();
     await snapshotPage.isReady();
 
-    await snapshotPage.mainMenuComponent.clickSnapshot();
+    await snapshotPage.mainMenu.clickSnapshot();
 
-    await snapshotPage.mainMenuComponent.isVisible();
+    await snapshotPage.mainMenu.isVisible();
 
     const userEmail = page.getByText(USERNAME).first();
     await expect(userEmail).toBeVisible({ timeout: 5000 });
 
-    await expect(snapshotPage.mainMenuComponent.logoutLink).toBeVisible();
+    await expect(snapshotPage.mainMenu.logoutLink).toBeVisible();
   });
   //TODO: isNeeded?
 
