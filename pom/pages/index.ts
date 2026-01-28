@@ -8,3 +8,4 @@ export * from './logout.page';
 export * from './signup.page';
 export * from './privacy-policy.page';
 export * from './forgot-password.page';
+export * from './stock-analysis.page';
