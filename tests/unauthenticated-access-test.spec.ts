@@ -36,7 +36,7 @@ test.describe('Unauthenticated user redirection (auth guard) @desktop', () => {
     await page.waitForLoadState('networkidle');
 
     // main menu should not be visible
-    const mainMenu = snapshotDesktopPage.mainMenuComponent;
+    const mainMenu = snapshotDesktopPage.mainMenu;
     const isMainMenuVisible = await mainMenu.isVisible();
     await expect(isMainMenuVisible).toBeFalsy();
   });
@@ -64,7 +64,7 @@ test.describe('Unauthenticated user redirection (auth guard) @mobile', () => {
     await page.waitForLoadState('networkidle');
 
     // main menu should not be visible
-    const mainMenu = snapshotMobilePage.mainMenuComponent;
+    const mainMenu = snapshotMobilePage.mainMenu;
     const isMainMenuVisible = await mainMenu.isVisible();
     await expect(isMainMenuVisible).toBeFalsy();
   });

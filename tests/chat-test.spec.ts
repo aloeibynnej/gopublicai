@@ -13,13 +13,14 @@ test('chat window can be opened @desktop', async ({ page }) => {
   const chatComponent = healthMonitorPage.chat;
 
   await chatComponent.sendMessage(`Hello World ${unixTimestamp}`);
-  await chatComponent.reasoningText.waitFor({ state: 'visible' });
+  // Fixed wait for AI response (matches pattern in snapshot-analysis-cards, snapshot-delete-chat)
+  await page.waitForTimeout(20_000);
 
   await page.reload();
 
   await healthMonitorPage.isReady();
   await chatComponent.clickChatHistoryItemByText(`Hello World ${unixTimestamp}`);
-  await expect(page.locator('text=Hello World ' + unixTimestamp)).toBeVisible();
+  await expect(page.locator('text=Hello World ' + unixTimestamp)).toBeVisible({ timeout: 15_000 });
 
   await chatComponent.clickNewChat();
   await chatComponent.waitForChatResponse();

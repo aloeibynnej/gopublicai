@@ -52,7 +52,20 @@ export class HealthMonitorDesktopPage extends HealthMonitorPage {
   }
 
   async isReady(): Promise<void> {
-    await this.page.waitForLoadState('networkidle');
+    if (this.page.isClosed()) {
+      throw new Error('Page is already closed; cannot wait for isReady().');
+    }
+    try {
+      // Use 'load' to avoid long waits; 'networkidle' can race with page close or never fire (e.g. long‑polling).
+      await this.page.waitForLoadState('load');
+    } catch (err) {
+      if (this.page.isClosed()) {
+        throw new Error(
+          'Page was closed while waiting for load state (e.g. app navigated away or closed the window).'
+        );
+      }
+      throw err;
+    }
     await this.page.getByRole('heading', { name: 'Stock Technicals' }).isVisible();
     await this.priceMomentumCard.isVisible();
   }
@@ -120,7 +133,7 @@ export class HealthMonitorMobilePage extends HealthMonitorPage {
     this.greetingMessage = page.locator('div.relative.text-2xl').first();
     this.stockTickerHeader = page.getByRole('button', { name: /STOCK TICKER GOALS/i });
     this.chatHistoryBackdrop = page.locator('[aria-label="Chat history backdrop"]');
-    this.chatHistoryItems = page.locator('[role="button"][aria-label*="Chat from"]');
+    this.chatHistoryItems = page.locator('[role="button"][class="chat-header-button"]');
     this.screenSizeIndicator = page.locator('div.fixed.bottom-1.left-1.z-50');
     this.menuButton = page.getByRole('banner').getByRole('img');
 

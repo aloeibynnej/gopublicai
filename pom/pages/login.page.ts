@@ -49,8 +49,7 @@ export class LoginPage implements IPage {
   }
 
   async open(): Promise<void> {
-    await this.page.goto(this.getUrl());
-    await this.page.waitForLoadState('networkidle');
+    await this.page.goto(this.getUrl(), { waitUntil: 'domcontentloaded' });
   }
 
   async fillEmail(email: string): Promise<void> {

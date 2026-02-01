@@ -27,8 +27,8 @@ test.describe('Logout Flow', () => {
 
     await page.waitForLoadState('networkidle');
 
-    await snapshotPage.mainMenuComponent.clickHealthMonitor();
-    await snapshotPage.mainMenuComponent.logout();
+    await snapshotPage.mainMenu.clickHealthMonitor();
+    await snapshotPage.mainMenu.logout();
 
     await logoutSuccessPage.isReady();
 

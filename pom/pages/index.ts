@@ -1,5 +1,6 @@
 export * from './example-page.page';
 export * from './login.page';
+export * from './forgot-password.page';
 export * from './dashboard.page';
 export * from './oauth-login.page';
 export * from './health-monitor.page';

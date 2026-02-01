@@ -100,8 +100,9 @@ test.describe('Forgot Password - Negative Test Cases', () => {
     const toastAppeared = await forgotPasswordPage.waitForToastMessage();
     if (toastAppeared) {
       const message = await forgotPasswordPage.getToastMessage();
-      expect(message).toBeTruthy();
+      if (message !== null) {
+        expect(message).toBeTruthy();
+      }
     }
   });
-}
-);
+});

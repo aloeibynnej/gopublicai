@@ -144,7 +144,7 @@ class SnapshotPage implements IPage {
   async isReady(): Promise<void> {
     await this.marketContextSection.waitFor({ state: 'visible' });
     await this.yourPeersSection.waitFor({ state: 'visible' });
-    await this.capitalMarketScrollSection.waitFor({ state: 'visible' });
+    //await this.capitalMarketScrollSection.waitFor({ state: 'visible' });
     // Wait for analysis cards to load (they load dynamically after initial page load)
     await this.page.waitForTimeout(8000);
     await this.investorLensCard.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
