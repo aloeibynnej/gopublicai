@@ -5,3 +5,7 @@ export * from './dashboard.page';
 export * from './oauth-login.page';
 export * from './health-monitor.page';
 export * from './snapshot.page';
+export * from './logout.page';
+export * from './signup.page';
+export * from './privacy-policy.page';
+export * from './stock-analysis.page';

@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { PLATFORM_URL } from 'pom/constants';
 
 export class ForgotPasswordPage {
   readonly page: Page;
@@ -15,12 +16,19 @@ export class ForgotPasswordPage {
     this.resetPasswordButton = page.getByRole('button', { name: 'Reset Password' });
     this.backToLoginLink = page.getByRole('link', { name: 'Back to login' });
     this.pageHeading = page.getByRole('heading', { name: 'Forgot Password', level: 1 });
-    this.pageDescription = page.locator('text=Enter your email address and we will send you a link');
+    this.pageDescription = page.locator(
+      'text=Enter your email address and we will send you a link'
+    );
     this.logo = page.locator('img[alt="Public AI Logo"]');
   }
 
+  getUrl(): string {
+    const basePath = '/forgot-password';
+    return `${PLATFORM_URL}${basePath}`;
+  }
+
   async goto() {
-    await this.page.goto('/forgot-password');
+    await this.page.goto(this.getUrl());
   }
 
   async isReady() {
@@ -80,15 +88,15 @@ export class ForgotPasswordPage {
   async waitForToastMessage(timeout: number = 3000): Promise<boolean> {
     // Wait for toast notification to appear (bottom left corner)
     await this.page.waitForTimeout(2000);
-    
+
     // Look for toast message with success text
     const toastMessage = this.page.locator('text=/reset link has been sent|email exists/i').first();
     const toastVisible = await toastMessage.isVisible().catch(() => false);
-    
+
     if (toastVisible) {
       return true;
     }
-    
+
     // Check for any toast/notification element as fallback
     const anyToast = this.page.locator('[role="status"], [role="alert"], .sonner-toast').first();
     return await anyToast.isVisible().catch(() => false);
@@ -97,7 +105,7 @@ export class ForgotPasswordPage {
   async getToastMessage(): Promise<string | null> {
     const toastMessage = this.page.locator('text=/reset link has been sent|email exists/i').first();
     const toastVisible = await toastMessage.isVisible().catch(() => false);
-    
+
     if (toastVisible) {
       return await toastMessage.textContent();
     }
@@ -115,4 +123,3 @@ export class ForgotPasswordPage {
     return url.includes('/forgot-password');
   }
 }
-

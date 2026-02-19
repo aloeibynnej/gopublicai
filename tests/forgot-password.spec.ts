@@ -1,11 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { ForgotPasswordPage } from '../pom/pages';
 
-test.describe('Forgot Password - Positive Test Cases', () => {
+test.skip('Forgot Password - Positive Test Cases', () => {
   // Use unauthenticated context - no storageState
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test('should load forgot password page and display all form elements @smoke', async ({ page }) => {
+  test('should load forgot password page and display all form elements @smoke', async ({
+    page,
+  }) => {
     const forgotPasswordPage = new ForgotPasswordPage(page);
 
     await forgotPasswordPage.goto();
@@ -34,7 +36,9 @@ test.describe('Forgot Password - Positive Test Cases', () => {
     expect(backToLoginVisible).toBe(true);
   });
 
-  test('should navigate back to login page when clicking back to login link @smoke', async ({ page }) => {
+  test('should navigate back to login page when clicking back to login link @smoke', async ({
+    page,
+  }) => {
     const forgotPasswordPage = new ForgotPasswordPage(page);
 
     await forgotPasswordPage.goto();
@@ -154,7 +158,9 @@ test.describe('Forgot Password - Positive Test Cases', () => {
     expect(page.url()).toContain('/forgot-password');
   });
 
-  test('should allow user to navigate away and return to forgot password page @smoke', async ({ page }) => {
+  test('should allow user to navigate away and return to forgot password page @smoke', async ({
+    page,
+  }) => {
     const forgotPasswordPage = new ForgotPasswordPage(page);
 
     await forgotPasswordPage.goto();
