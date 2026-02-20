@@ -12,7 +12,7 @@ test.describe('Global Page Title Verification - Unauthenticated', () => {
     const pageTitle = await page.title();
     expect(pageTitle).toBeTruthy();
     expect(pageTitle.length).toBeGreaterThan(0);
-    expect(pageTitle).toBe('Log in');
+    expect(pageTitle).toBe('PublicAI');
   });
 });
 

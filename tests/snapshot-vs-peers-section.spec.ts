@@ -12,9 +12,6 @@ test.describe('Snapshot VS PEERS Section', () => {
     await snapshotPage.open();
     await snapshotPage.isReady();
 
-    // Wait for page to load
-    await page.waitForLoadState('networkidle');
-
     // ===== VERIFY PEER COMPARISON HEADING =====
 
     const peerComparisonVisible = await snapshotPage.isPeerComparisonHeadingVisible();

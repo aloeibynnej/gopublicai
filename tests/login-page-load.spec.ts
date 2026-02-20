@@ -13,8 +13,6 @@ test.describe('Login Page - Page Load and Elements', () => {
 
     expect(page.url()).toContain('/login');
 
-    await page.waitForLoadState('networkidle');
-
     expect(await loginPage.isVisible()).toBeTruthy();
   });
 });

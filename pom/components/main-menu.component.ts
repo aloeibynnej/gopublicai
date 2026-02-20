@@ -29,7 +29,7 @@ export class MainMenuComponent {
       name: /change/i,
     });
     this.changeTickerButtonMobile = this.page
-      .getByRole('button', { name: /change/i })
+      .getByRole('button', { name: /\bchange\b/i })
       .or(this.page.locator('[aria-label*="change ticker" i]'));
 
     this.tickerSwitcher = new TickerSwitcherComponent(page);

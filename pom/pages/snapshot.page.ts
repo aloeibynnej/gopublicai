@@ -582,7 +582,7 @@ export class SnapshotMobilePage extends SnapshotPage {
   constructor(page: Page) {
     super(page);
 
-    this.menuButton = page.getByRole('banner').getByRole('img');
+    this.menuButton = page.getByRole('img', { name: 'Public AI Logo' });
     this.stockTickerBadge = page.locator('div.justify-center.text-\\[12px\\].px-2.py-px');
     this.statsNavigationArrow = page.locator('a[href="/stats"] svg');
     this.priceValue = page

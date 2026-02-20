@@ -6,7 +6,8 @@ export const ENVIRONMENTS = {
 };
 
 export const ENV = process.env.ENV || ENVIRONMENTS.development;
-export const BASE_URL = process.env.BASE_URL || 'https://staging.gopublic.ai/'
+export const BASE_URL = process.env.BASE_URL || 'https://staging.gopublic.ai/';
+export const PLATFORM_URL = process.env.PLATFORM_URL || process.env.BASE_URL || 'https://staging.gopublic.ai/';
 export const USERNAME = process.env.USERNAME || 'derick.gapuz@gopublic.ai';
 export const PASSWORD = process.env.PASSWORD || 'qatester123!';
 

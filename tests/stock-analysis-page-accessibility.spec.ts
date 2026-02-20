@@ -9,7 +9,6 @@ test.describe('TC010: Stock Analysis Page Accessibility and Core', () => {
     const stockAnalysisPage = new StockAnalysisPage(page);
     
     await stockAnalysisPage.open();
-    await page.waitForLoadState('networkidle');
     
     const currentUrl = page.url();
     expect(currentUrl).toContain('/stats');
@@ -19,7 +18,6 @@ test.describe('TC010: Stock Analysis Page Accessibility and Core', () => {
     const stockAnalysisPage = new StockAnalysisPage(page);
     
     await stockAnalysisPage.open();
-    await page.waitForLoadState('networkidle');
 
     const currentUrl = page.url();
     expect(currentUrl).toContain('/stats');

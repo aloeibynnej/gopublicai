@@ -16,7 +16,8 @@ export class HealthMonitorPage implements IPage {
   }
 
   async isReady(): Promise<void> {
-    await this.page.waitForLoadState('networkidle');
+    // Use 'load' - 'networkidle' can hang on pages with ongoing requests (live data, polling)
+    await this.page.waitForLoadState('load');
   }
 
   getUrl(): string {
@@ -135,7 +136,7 @@ export class HealthMonitorMobilePage extends HealthMonitorPage {
     this.chatHistoryBackdrop = page.locator('[aria-label="Chat history backdrop"]');
     this.chatHistoryItems = page.locator('[role="button"][class="chat-header-button"]');
     this.screenSizeIndicator = page.locator('div.fixed.bottom-1.left-1.z-50');
-    this.menuButton = page.getByRole('banner').getByRole('img');
+    this.menuButton = page.getByRole('img', { name: 'Public AI Logo' });
 
     this.mainMenu = new MainMenuComponent(page);
   }
