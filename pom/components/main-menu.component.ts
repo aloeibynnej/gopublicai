@@ -25,12 +25,14 @@ export class MainMenuComponent {
     this.statsLink = this.page.getByRole('link', { name: 'Stats' });
     this.settingsLink = this.page.getByRole('link', { name: 'Settings' });
     this.snapshotLink = this.page.getByRole('link', { name: 'Snapshot' });
-    this.changeTickerButton = this.page.getByRole('button', {
-      name: /change/i,
-    });
-    this.changeTickerButtonMobile = this.page
-      .getByRole('button', { name: /\bchange\b/i })
-      .or(this.page.locator('[aria-label*="change ticker" i]'));
+    // Ticker switcher: use .mb-2 + Radix attributes (matches ticker-switcher.component.ts) to avoid
+    // matching chat history button or "Stock Technicals" cards; works in desktop and mobile layouts
+    const tickerButton = this.page
+      .locator('.mb-2')
+      .locator('button[aria-haspopup="dialog"][data-state]')
+      .first();
+    this.changeTickerButton = tickerButton;
+    this.changeTickerButtonMobile = tickerButton;
 
     this.tickerSwitcher = new TickerSwitcherComponent(page);
 
